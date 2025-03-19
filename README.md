@@ -1,10 +1,10 @@
-# Hi there, I'm Musichub 👋
+Tunelab
 
 A collaborative music creation platform enabling musicians to work together seamlessly.
 
-## 🎵 About Musichub
+## 🎵 About Tunelab
 
-Musichub is a web-based platform that helps musicians collaborate, share projects, and create music together in real-time. With features like version control, real-time collaboration, and project management tools, we make remote music collaboration easy and efficient.
+Tunelab is a web-based platform that helps musicians collaborate, share projects, and create music together in real-time. With features like version control, real-time collaboration, and project management tools, we make remote music collaboration easy and efficient.
 
 ## 🛠️ Tech Stack
 
@@ -44,7 +44,7 @@ Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed - see the [LICENSE](LICENSE) file for details.
 
 ## 📫 Contact
 
