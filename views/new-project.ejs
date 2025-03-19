@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Project | MusicHub</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0 0 16px 0;
+        }
+        
+        .page-header p {
+            color: #8b949e;
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .form-container {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8b949e;
+        }
+        
+        input[type="text"], 
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        input[type="text"]:focus, 
+        textarea:focus,
+        select:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: rgba(56, 139, 253, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(56, 139, 253, 0.2);
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #58a6ff;
+        }
+        
+        .form-section {
+            margin-bottom: 32px;
+        }
+        
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .genre-select {
+            margin-bottom: 24px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+            box-shadow: 0 1px 0 rgba(27, 31, 35, 0.1);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:active {
+            background-color: #238636;
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #30363d;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary:active {
+            background-color: #21262d;
+            transform: translateY(0);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .form-tip {
+            background-color: rgba(56, 139, 253, 0.1);
+            border-left: 4px solid #58a6ff;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .form-tip p {
+            margin: 0;
+            color: #8b949e;
+            font-size: 14px;
+        }
+        
+        .form-tip strong {
+            color: #c9d1d9;
+        }
+        
+        .collaborators-section {
+            margin-top: 24px;
+        }
+        
+        .template-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .template-option {
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .template-option:hover {
+            border-color: #58a6ff;
+            background-color: rgba(56, 139, 253, 0.1);
+        }
+        
+        .template-option.selected {
+            border-color: #58a6ff;
+            background-color: rgba(56, 139, 253, 0.1);
+        }
+        
+        .template-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #8b949e;
+        }
+        
+        .template-option.selected .template-icon {
+            color: #58a6ff;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Create a new project</h1>
+                <p>Start your musical journey with a new project. Fill in the details below to get started.</p>
+            </div>
+            
+            <div class="form-container">
+                <form action="/projects" method="POST">
+                    <div class="form-section">
+                        <div class="form-section-title">Project Details</div>
+                        
+                        <div class="form-group">
+                            <label for="name">Project name</label>
+                            <input type="text" id="name" name="name" placeholder="My Awesome Music Project" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description (optional)</label>
+                            <textarea id="description" name="description" placeholder="Describe your project, its goals, and what makes it special..."></textarea>
+                        </div>
+                        
+                        <div class="form-group genre-select">
+                            <label for="genre">Genre</label>
+                            <select id="genre" name="genre">
+                                <option value="">Select a genre</option>
+                                <option value="rock">Rock</option>
+                                <option value="pop">Pop</option>
+                                <option value="electronic">Electronic</option>
+                                <option value="hiphop">Hip Hop</option>
+                                <option value="jazz">Jazz</option>
+                                <option value="classical">Classical</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">Project Template</div>
+                        <p>Choose a starting point for your project:</p>
+                        
+                        <div class="template-options">
+                            <div class="template-option selected">
+                                <div class="template-icon">🎵</div>
+                                <h4>Empty Project</h4>
+                                <p>Start from scratch</p>
+                                <input type="radio" name="template" value="empty" checked style="display: none;">
+                            </div>
+                            <div class="template-option">
+                                <div class="template-icon">🎸</div>
+                                <h4>Rock Band</h4>
+                                <p>Basic rock setup</p>
+                                <input type="radio" name="template" value="rock" style="display: none;">
+                            </div>
+                            <div class="template-option">
+                                <div class="template-icon">🎹</div>
+                                <h4>Electronic</h4>
+                                <p>Synth and beats</p>
+                                <input type="radio" name="template" value="electronic" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">Privacy Settings</div>
+                        
+                        <div class="form-tip">
+                            <p><strong>Tip:</strong> Public projects can be discovered by other users. Private projects are only visible to you and your collaborators.</p>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="isPublic" name="isPublic">
+                            <label for="isPublic">Make this project public</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create project</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Handle template selection
+        document.querySelectorAll('.template-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                document.querySelectorAll('.template-option').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Check the radio button
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+            });
+        });
+    </script>
+</body>
+</html>

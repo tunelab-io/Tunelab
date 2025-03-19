@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MusicHub Desktop</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: #161b22;
+      padding: 12px 16px;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #58a6ff;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: #161b22;
+      border-right: 1px solid #30363d;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .project-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .project-item {
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .project-item:hover {
+      background: #1f2428;
+    }
+
+    .project-item.active {
+      background: #1f2428;
+    }
+
+    .content {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .changes-section {
+      background: #161b22;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      padding: 16px;
+    }
+
+    .changes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .file-item:hover {
+      background: #1f2428;
+    }
+
+    .file-status {
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .status-modified {
+      background: #bb8009;
+      color: #fff;
+    }
+
+    .status-added {
+      background: #238636;
+      color: #fff;
+    }
+
+    .status-deleted {
+      background: #da3633;
+      color: #fff;
+    }
+
+    .commit-section {
+      background: #161b22;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      padding: 16px;
+    }
+
+    .commit-message {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      padding: 8px;
+      margin-bottom: 16px;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .button {
+      background: #238636;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #2ea043;
+    }
+
+    .button:disabled {
+      background: #238636;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">MusicHub Desktop</div>
+    <div class="user-info">
+      <span id="username"></span>
+      <button class="button" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <button class="button" onclick="cloneProject()">Clone Project</button>
+      <div class="project-list" id="projectList"></div>
+    </div>
+
+    <div class="content">
+      <div class="changes-section">
+        <div class="changes-header">
+          <h2>Changes</h2>
+          <button class="button" onclick="pullChanges()">Pull Changes</button>
+        </div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+
+      <div class="commit-section">
+        <textarea class="commit-message" id="commitMessage" placeholder="Commit message"></textarea>
+        <button class="button" onclick="commitChanges()">Commit Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    let currentProject = null;
+
+    // Handle login status
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        if (!data.success) {
+          window.location.href = '/login';
+          return;
+        }
+        document.getElementById('username').textContent = data.user.username;
+      } catch (err) {
+        window.location.href = '/login';
+      }
+    }
+
+    // Load projects
+    async function loadProjects() {
+      try {
+        const response = await fetch('/projects');
+        const data = await response.json();
+        
+        const projectList = document.getElementById('projectList');
+        projectList.innerHTML = '';
+
+        data.projects.forEach(project => {
+          const div = document.createElement('div');
+          div.className = `project-item ${project._id === currentProject?._id ? 'active' : ''}`;
+          div.textContent = project.name;
+          div.onclick = () => selectProject(project);
+          projectList.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error loading projects:', err);
+      }
+    }
+
+    // Select project
+    async function selectProject(project) {
+      currentProject = project;
+      socket.emit('join-project', project._id);
+      loadProjects();
+      updateFileList();
+    }
+
+    // Clone project 
+    async function cloneProject() {
+      try {
+        const response = await fetch('/projects/new', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'New Project',
+            isPublic: false
+          })
+        });
+
+        if (response.ok) {
+          loadProjects();
+        }
+      } catch (err) {
+        console.error('Error cloning project:', err);
+      }
+    }
+
+    // Pull changes
+    async function pullChanges() {
+      if (!currentProject) return;
+
+      try {
+        const response = await fetch(`/projects/${currentProject._id}/versions/new`);
+        if (response.ok) {
+          updateFileList();
+        }
+      } catch (err) {
+        console.error('Error pulling changes:', err);
+      }
+    }
+
+    // Commit changes
+    async function commitChanges() {
+      if (!currentProject) return;
+
+      const message = document.getElementById('commitMessage').value;
+      if (!message) return;
+
+      const formData = new FormData();
+      formData.append('message', message);
+      
+      try {
+        const response = await fetch(`/projects/${currentProject._id}/versions/new`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          document.getElementById('commitMessage').value = '';
+          updateFileList();
+        }
+      } catch (err) {
+        console.error('Error committing changes:', err);
+      }
+    }
+
+    // Update file list
+    async function updateFileList() {
+      if (!currentProject) return;
+
+      try {
+        const response = await fetch(`/projects/${currentProject._id}`);
+        const data = await response.json();
+
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        data.versions.forEach(version => {
+          version.files.forEach(file => {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            
+            const status = document.createElement('span');
+            status.className = `file-status status-${file.status || 'modified'}`;
+            status.textContent = file.status || 'modified';
+            
+            const name = document.createElement('span');
+            name.textContent = file.filename;
+            
+            div.appendChild(status);
+            div.appendChild(name);
+            fileList.appendChild(div);
+          });
+        });
+      } catch (err) {
+        console.error('Error updating file list:', err);
+      }
+    }
+
+    // Handle real-time updates
+    socket.on('daw-update', (data) => {
+      if (data.projectId === currentProject?._id) {
+        updateFileList();
+      }
+    });
+
+    // Logout
+    async function logout() {
+      try {
+        const response = await fetch('/logout', {
+          method: 'POST'
+        });
+        if (response.ok) {
+          window.location.href = '/login';
+        }
+      } catch (err) {
+        console.error('Error logging out:', err);
+      }
+    }
+
+    // Initialize
+    checkAuth();
+    loadProjects();
+  </script>
+</body>
+</html>

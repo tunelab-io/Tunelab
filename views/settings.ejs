@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | MusicHub</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .settings-nav {
+            display: flex;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            margin-bottom: 32px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .settings-nav a {
+            padding: 14px 20px;
+            color: #c9d1d9;
+            text-decoration: none;
+            font-size: 15px;
+            border-right: 1px solid #30363d;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .settings-nav a:last-child {
+            border-right: none;
+        }
+        
+        .settings-nav a.active {
+            background-color: #0d1117;
+            color: #58a6ff;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .settings-nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #58a6ff;
+        }
+        
+        .settings-nav a:hover:not(.active) {
+            background-color: #1c2128;
+            color: #58a6ff;
+        }
+        
+        .settings-section {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .settings-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .settings-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0 0 24px 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #8b949e;
+            transition: color 0.2s ease;
+        }
+
+        .form-group:focus-within label {
+            color: #58a6ff;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88,166,255,0.2);
+        }
+        
+        .form-group .input-hint {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.4;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background-color: #da3633;
+            color: #ffffff;
+        }
+        
+        .btn-danger:hover {
+            background-color: #f85149;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border-color: #30363d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #30363d;
+            transform: translateY(-1px);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .plan-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        
+        .plan-card {
+            background-color: #0d1117;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-4px);
+            border-color: #58a6ff;
+            box-shadow: 0 8px 24px rgba(88,166,255,0.1);
+        }
+        
+        .plan-card.active {
+            border-color: #238636;
+            border-width: 2px;
+            background-color: rgba(35,134,54,0.1);
+        }
+        
+        .plan-card.active::before {
+            content: "✓";
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 28px;
+            height: 28px;
+            background-color: #238636;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .plan-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 12px;
+        }
+        
+        .plan-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #58a6ff;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        
+        .plan-price span {
+            font-size: 15px;
+            font-weight: 400;
+            color: #8b949e;
+        }
+        
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+        }
+        
+        .plan-features li {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .plan-features li::before {
+            content: "✓";
+            color: #58a6ff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .danger-zone {
+            background-color: rgba(218, 54, 51, 0.1);
+            border: 2px solid rgba(218, 54, 51, 0.4);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 40px;
+        }
+        
+        .danger-zone h3 {
+            color: #f85149;
+            font-size: 18px;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .danger-zone p {
+            font-size: 15px;
+            color: #8b949e;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #0d1117;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #238636;
+            transition: width 0.3s ease;
+            background-image: linear-gradient(45deg, 
+                rgba(255,255,255,0.1) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255,255,255,0.1) 50%, 
+                rgba(255,255,255,0.1) 75%, 
+                transparent 75%, 
+                transparent);
+            background-size: 20px 20px;
+            animation: progress-animation 1s linear infinite;
+        }
+
+        @keyframes progress-animation {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 20px 0;
+            }
+        }
+
+        /* Custom checkbox styles */
+        input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #30363d;
+            border-radius: 4px;
+            margin-right: 10px;
+            position: relative;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #238636;
+            border-color: #238636;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+            
+            .settings-nav {
+                flex-wrap: wrap;
+            }
+            
+            .settings-nav a {
+                flex: 1 1 auto;
+                text-align: center;
+                min-width: 120px;
+            }
+            
+            .plan-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Settings</h1>
+            </div>
+            
+            <div class="settings-nav">
+                <a href="#profile" class="active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Profile
+                </a>
+                <a href="#account">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Account
+                </a>
+                <a href="#billing">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    Billing
+                </a>
+                <a href="#notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    Notifications
+                </a>
+                <a href="#security">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Security
+                </a>
+            </div>
+            
+            <div class="settings-section" id="profile">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Profile Settings
+                </h2>
+                <form action="/settings/profile" method="POST">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" value="<%= user.username %>" required>
+                        <div class="input-hint">This is your public display name.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="<%= user.email %>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" rows="4"><%= user.bio || '' %></textarea>
+                        <div class="input-hint">Tell others a little about yourself.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" value="<%= user.location || '' %>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="website">Website</label>
+                        <input type="text" id="website" name="website" value="<%= user.website || '' %>">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Save changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-section" id="account">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Account Settings
+                </h2>
+                <div class="form-group">
+                    <label for="plan">Current Plan</label>
+                    <input type="text" id="plan" value="<%= user.plan.charAt(0).toUpperCase() + user.plan.slice(1) %>" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label for="storage">Storage Usage</label>
+                    <div class="progress-bar">
+                        <% 
+                            let maxStorage = 1; // GB
+                            if (user.plan === 'pro') maxStorage = 50;
+                            if (user.plan === 'team') maxStorage = 500;
+                            const percentage = Math.min(100, (user.storageUsed / (maxStorage * 1024 * 1024 * 1024)) * 100);
+                        %>
+                        <div class="progress" style="width: <%= percentage %>%"></div>
+                    </div>
+                    <div class="input-hint"><%= (user.storageUsed / (1024 * 1024 * 1024)).toFixed(2) %> GB of <%= maxStorage %> GB used</div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="#billing" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Upgrade Plan
+                    </a>
+                </div>
+            </div>
+            
+            <div class="settings-section" id="billing">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    Billing & Plans
+                </h2>
+                <p>Choose the plan that's right for you:</p>
+                
+                <div class="plan-options">
+                    <div class="plan-card <%= user.plan === 'free' ? 'active' : '' %>">
+                        <div class="plan-name">Free</div>
+                        <div class="plan-price">$0 <span>/ month</span></div>
+                        <ul class="plan-features">
+                            <li>1 GB storage</li>
+                            <li>3 projects</li>
+                            <li>Basic audio quality</li>
+                            <li>Community support</li>
+                        </ul>
+                        <% if (user.plan !== 'free') { %>
+                            <button class="btn btn-secondary">Downgrade</button>
+                        <% } else { %>
+                            <button class="btn btn-secondary" disabled>Current Plan</button>
+                        <% } %>
+                    </div>
+                    
+                    <div class="plan-card <%= user.plan === 'pro' ? 'active' : '' %>">
+                        <div class="plan-name">Pro</div>
+                        <div class="plan-price">$9.99 <span>/ month</span></div>
+                        <ul class="plan-features">
+                            <li>50 GB storage</li>
+                            <li>Unlimited projects</li>
+                            <li>High-quality audio</li>
+                            <li>Priority support</li>
+                            <li>Advanced audio tools</li>
+                        </ul>
+                        <% if (user.plan !== 'pro') { %>
+                            <button class="btn btn-primary">Upgrade</button>
+                        <% } else { %>
+                            <button class="btn btn-secondary" disabled>Current Plan</button>
+                        <% } %>
+                    </div>
+                    
+                    <div class="plan-card <%= user.plan === 'team' ? 'active' : '' %>">
+                        <div class="plan-name">Team</div>
+                        <div class="plan-price">$29.99 <span>/ month</span></div>
+                        <ul class="plan-features">
+                            <li>500 GB storage</li>
+                            <li>Unlimited projects</li>
+                            <li>Lossless audio quality</li>
+                            <li>24/7 dedicated support</li>
+                            <li>Team collaboration tools</li>
+                            <li>API access</li>
+                        </ul>
+                        <% if (user.plan !== 'team') { %>
+                            <button class="btn btn-primary">Upgrade</button>
+                        <% } else { %>
+                            <button class="btn btn-secondary" disabled>Current Plan</button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section" id="notifications">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    Notification Settings
+                </h2>
+                <form action="/settings/notifications" method="POST">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="emailNotifications" <%= user.notifications?.email ? 'checked' : '' %>>
+                            Email notifications
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="projectUpdates" <%= user.notifications?.projectUpdates ? 'checked' : '' %>>
+                            Project updates
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="collaborationRequests" <%= user.notifications?.collaborationRequests ? 'checked' : '' %>>
+                            Collaboration requests
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="marketingEmails" <%= user.notifications?.marketing ? 'checked' : '' %>>
+                            Marketing emails
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Save preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-section" id="security">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Security Settings
+                </h2>
+                <form action="/settings/password" method="POST">
+                    <div class="form-group">
+                        <label for="current-password">Current password</label>
+                        <input type="password" id="current-password" name="currentPassword" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-password">New password</label>
+                        <input type="password" id="new-password" name="newPassword" required>
+                        <div class="input-hint">Make it strong and at least 8 characters</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm new password</label>
+                        <input type="password" id="confirm-password" name="confirmPassword" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Update password</button>
+                    </div>
+                </form>
+                
+                <div class="danger-zone">
+                    <h3>Danger Zone</h3>
+                    <p>Once you delete your account, there is no going back. Please be certain.</p>
+                    <button class="btn btn-danger">Delete account</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <%- include('partials/footer') %>
+    
+    <script>
+        // Connect to Socket.IO for real-time updates
+        const socket = io();
+        
+        // Handle tab navigation
+        document.querySelectorAll('.settings-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.settings-nav a').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Show the corresponding section
+                const targetId = this.getAttribute('href').substring(1);
+                document.querySelectorAll('.settings-section').forEach(section => {
+                    section.style.display = section.id === targetId ? 'block' : 'none';
+                });
+            });
+        });
+        
+        // Initialize - show only the first section
+        document.querySelectorAll('.settings-section').forEach((section, index) => {
+            section.style.display = index === 0 ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>

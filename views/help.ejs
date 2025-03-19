@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Documentation | Rythmit</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .help-container {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .help-nav {
+            width: 220px;
+            position: sticky;
+            top: 24px;
+            align-self: flex-start;
+        }
+        
+        .help-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .help-nav-item {
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .help-nav-item:last-child {
+            border-bottom: none;
+        }
+        
+        .help-nav-link {
+            display: block;
+            padding: 12px 16px;
+            color: #c9d1d9;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .help-nav-link:hover, .help-nav-link.active {
+            background-color: #1f2937;
+            color: #f0f6fc;
+        }
+        
+        .help-content {
+            flex: 1;
+        }
+        
+        .help-section {
+            margin-bottom: 32px;
+            display: none;
+        }
+        
+        .help-section.active {
+            display: block;
+        }
+        
+        .help-section h2 {
+            font-size: 20px;
+            color: #e6edf3;
+            margin-top: 0;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .help-section h3 {
+            font-size: 16px;
+            color: #e6edf3;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .help-section p {
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .help-section ul, .help-section ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+        
+        .help-section li {
+            margin-bottom: 8px;
+        }
+        
+        .help-section code {
+            background-color: #1f2937;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 85%;
+        }
+        
+        .help-section pre {
+            background-color: #1f2937;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+        
+        .help-section pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        .help-section img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            margin-bottom: 16px;
+        }
+        
+        .help-section .note {
+            background-color: rgba(56, 139, 253, 0.15);
+            border-left: 4px solid #1f6feb;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .help-section .warning {
+            background-color: rgba(187, 128, 9, 0.15);
+            border-left: 4px solid #e3b341;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .keyboard-shortcut {
+            display: inline-block;
+            padding: 3px 6px;
+            background-color: #1f2937;
+            border: 1px solid #30363d;
+            border-radius: 3px;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 85%;
+            margin: 0 2px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .feature-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .feature-card p {
+            margin-bottom: 0;
+            color: #8b949e;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Help & Documentation</h1>
+            </div>
+            
+            <div class="help-container">
+                <nav class="help-nav">
+                    <ul class="help-nav-list">
+                        <li class="help-nav-item"><a href="#getting-started" class="help-nav-link active">Getting Started</a></li>
+                        <li class="help-nav-item"><a href="#projects" class="help-nav-link">Projects</a></li>
+                        <li class="help-nav-item"><a href="#collaboration" class="help-nav-link">Collaboration</a></li>
+                        <li class="help-nav-item"><a href="#audio-editor" class="help-nav-link">Audio Editor</a></li>
+                        <li class="help-nav-item"><a href="#keyboard-shortcuts" class="help-nav-link">Keyboard Shortcuts</a></li>
+                        <li class="help-nav-item"><a href="#account" class="help-nav-link">Account Management</a></li>
+                        <li class="help-nav-item"><a href="#faq" class="help-nav-link">FAQ</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="help-content">
+                    <section id="getting-started" class="help-section active">
+                        <h2>Getting Started with Rythmit</h2>
+                        <p>Welcome to Rythmit, the collaborative platform for music producers, songwriters, and audio enthusiasts. This guide will help you get started with the basics.</p>
+                        
+                        <h3>What is Rythmit?</h3>
+                        <p>Rythmit is a cloud-based platform that allows you to create, edit, and collaborate on music projects in real-time. Whether you're a solo producer or working with a team, Rythmit provides the tools you need to bring your musical ideas to life.</p>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h3>Project Management</h3>
+                                <p>Create and organize your music projects in one place</p>
+                            </div>
+                            <div class="feature-card">
+                                <h3>Real-time Collaboration</h3>
+                                <p>Work with others simultaneously on the same project</p>
+                            </div>
+                            <div class="feature-card">
+                                <h3>Audio Editor</h3>
+                                <p>Powerful tools for recording, editing, and mixing</p>
+                            </div>
+                            <div class="feature-card">
+                                <h3>Version Control</h3>
+                                <p>Track changes and revert to previous versions</p>
+                            </div>
+                        </div>
+                        
+                        <h3>Creating Your First Project</h3>
+                        <ol>
+                            <li>Click on the <code>New Project</code> button on your dashboard</li>
+                            <li>Enter a name and description for your project</li>
+                            <li>Select a genre (optional)</li>
+                            <li>Choose whether the project should be public or private</li>
+                            <li>Click <code>Create Project</code> to get started</li>
+                        </ol>
+                        
+                        <div class="note">
+                            <p><strong>Tip:</strong> Public projects can be discovered by other Rythmit users, while private projects are only visible to you and your collaborators.</p>
+                        </div>
+                    </section>
+                    
+                    <section id="projects" class="help-section">
+                        <h2>Working with Projects</h2>
+                        <p>Projects are the core of Rythmit. Each project contains your audio tracks, settings, and collaboration information.</p>
+                        
+                        <h3>Project Types</h3>
+                        <ul>
+                            <li><strong>Personal Projects:</strong> Created and owned by you</li>
+                            <li><strong>Collaborative Projects:</strong> Projects where multiple users can contribute</li>
+                            <li><strong>Forked Projects:</strong> Copies of existing projects that you can modify independently</li>
+                        </ul>
+                        
+                        <h3>Project Settings</h3>
+                        <p>You can customize various aspects of your project by clicking the <code>Settings</code> tab within your project:</p>
+                        <ul>
+                            <li>Change project name and description</li>
+                            <li>Update genre and tags</li>
+                            <li>Toggle between public and private visibility</li>
+                            <li>Set BPM (beats per minute) and time signature</li>
+                            <li>Manage collaborator permissions</li>
+                        </ul>
+                        
+                        <h3>Forking a Project</h3>
+                        <p>Forking creates a copy of an existing project that you can modify without affecting the original:</p>
+                        <ol>
+                            <li>Navigate to the project you want to fork</li>
+                            <li>Click the <code>Fork</code> button in the project header</li>
+                            <li>Confirm the action when prompted</li>
+                            <li>You'll be redirected to your new forked project</li>
+                        </ol>
+                        
+                        <div class="warning">
+                            <p><strong>Note:</strong> You can only fork public projects or projects where you have been granted permission to fork.</p>
+                        </div>
+                    </section>
+                    
+                    <section id="collaboration" class="help-section">
+                        <h2>Collaboration Features</h2>
+                        <p>Rythmit makes it easy to collaborate with other musicians and producers in real-time.</p>
+                        
+                        <h3>Inviting Collaborators</h3>
+                        <ol>
+                            <li>Open your project and click the <code>Collaborators</code> tab</li>
+                            <li>Click <code>Invite Collaborator</code></li>
+                            <li>Enter the username or email of the person you want to invite</li>
+                            <li>Select their permission level (Viewer, Editor, or Admin)</li>
+                            <li>Click <code>Send Invitation</code></li>
+                        </ol>
+                        
+                        <h3>Collaboration Permissions</h3>
+                        <ul>
+                            <li><strong>Viewer:</strong> Can view the project and leave comments, but cannot make changes</li>
+                            <li><strong>Editor:</strong> Can edit tracks, add/remove audio, and leave comments</li>
+                            <li><strong>Admin:</strong> Has full access, including the ability to change project settings and manage collaborators</li>
+                        </ul>
+                        
+                        <h3>Real-time Editing</h3>
+                        <p>When multiple collaborators are working on a project simultaneously:</p>
+                        <ul>
+                            <li>You'll see their cursor and actions in real-time</li>
+                            <li>Changes are automatically saved and synced</li>
+                            <li>The activity feed shows who made which changes</li>
+                            <li>You can use the chat feature to communicate without leaving the project</li>
+                        </ul>
+                        
+                        <div class="note">
+                            <p><strong>Tip:</strong> Use the <code>@username</code> format in comments to notify specific collaborators.</p>
+                        </div>
+                    </section>
+                    
+                    <section id="audio-editor" class="help-section">
+                        <h2>Audio Editor Guide</h2>
+                        <p>The Rythmit audio editor provides professional tools for recording, editing, and mixing your music.</p>
+                        
+                        <h3>Interface Overview</h3>
+                        <ul>
+                            <li><strong>Track List:</strong> Shows all audio tracks in your project</li>
+                            <li><strong>Timeline:</strong> Displays the waveform and allows precise editing</li>
+                            <li><strong>Transport Controls:</strong> Play, pause, record, and navigate your project</li>
+                            <li><strong>Mixer:</strong> Adjust volume, panning, and effects for each track</li>
+                            <li><strong>Tools Panel:</strong> Access editing tools like cut, copy, paste, and more</li>
+                        </ul>
+                        
+                        <h3>Recording Audio</h3>
+                        <ol>
+                            <li>Click <code>Add Track</code> and select <code>Audio Track</code></li>
+                            <li>Select your input device from the dropdown menu</li>
+                            <li>Click the red <code>Record</code> button to start recording</li>
+                            <li>Click <code>Stop</code> when finished</li>
+                            <li>Your recording will appear as a new clip on the track</li>
+                        </ol>
+                        
+                        <h3>Editing Techniques</h3>
+                        <ul>
+                            <li><strong>Split Clip:</strong> Position the playhead and press <span class="keyboard-shortcut">S</span></li>
+                            <li><strong>Delete Selection:</strong> Select a region and press <span class="keyboard-shortcut">Delete</span></li>
+                            <li><strong>Fade In/Out:</strong> Drag the small handles at the beginning/end of a clip</li>
+                            <li><strong>Time Stretching:</strong> Hold <span class="keyboard-shortcut">Alt</span> while dragging the edge of a clip</li>
+                            <li><strong>Volume Adjustment:</strong> Click and drag the volume line within a clip</li>
+                        </ul>
+                        
+                        <h3>Effects and Processing</h3>
+                        <p>Each track can have multiple effects applied:</p>
+                        <ol>
+                            <li>Select a track in the mixer</li>
+                            <li>Click <code>Add Effect</code></li>
+                            <li>Choose from available effects (EQ, Compression, Reverb, etc.)</li>
+                            <li>Adjust the parameters to taste</li>
+                            <li>Effects can be reordered by dragging them in the effects chain</li>
+                        </ol>
+                    </section>
+                    
+                    <section id="keyboard-shortcuts" class="help-section">
+                        <h2>Keyboard Shortcuts</h2>
+                        <p>Master these keyboard shortcuts to speed up your workflow in Rythmit.</p>
+                        
+                        <h3>Global Shortcuts</h3>
+                        <ul>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">N</span> - New project</li>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">O</span> - Open project</li>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">S</span> - Save project</li>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">Z</span> - Undo</li>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">Y</span> - Redo</li>
+                            <li><span class="keyboard-shortcut">F1</span> - Open help</li>
+                        </ul>
+                        
+                        <h3>Transport Controls</h3>
+                        <ul>
+                            <li><span class="keyboard-shortcut">Space</span> - Play/Pause</li>
+                            <li><span class="keyboard-shortcut">R</span> - Record</li>
+                            <li><span class="keyboard-shortcut">Home</span> - Go to beginning</li>
+                            <li><span class="keyboard-shortcut">End</span> - Go to end</li>
+                            <li><span class="keyboard-shortcut">.</span> - Stop</li>
+                            <li><span class="keyboard-shortcut">M</span> - Toggle metronome</li>
+                        </ul>
+                        
+                        <h3>Editing Shortcuts</h3>
+                        <ul>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">X</span> - Cut selection</li>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">C</span> - Copy selection</li>
+                            <li><span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">V</span> - Paste</li>
+                            <li><span class="keyboard-shortcut">S</span> - Split clip at playhead</li>
+                            <li><span class="keyboard-shortcut">Delete</span> - Delete selected clips</li>
+                            <li><span class="keyboard-shortcut">A</span> - Select all</li>
+                            <li><span class="keyboard-shortcut">Esc</span> - Deselect all</li>
+                        </ul>
+                        
+                        <h3>View Shortcuts</h3>
+                        <ul>
+                            <li><span class="keyboard-shortcut">+</span> - Zoom in</li>
+                            <li><span class="keyboard-shortcut">-</span> - Zoom out</li>
+                            <li><span class="keyboard-shortcut">F</span> - Zoom to fit project</li>
+                            <li><span class="keyboard-shortcut">Z</span> - Zoom to selection</li>
+                            <li><span class="keyboard-shortcut">H</span> - Toggle mixer view</li>
+                            <li><span class="keyboard-shortcut">Tab</span> - Toggle sidebar</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="account" class="help-section">
+                        <h2>Account Management</h2>
+                        <p>Learn how to manage your Rythmit account settings and preferences.</p>
+                        
+                        <h3>Profile Settings</h3>
+                        <p>To update your profile information:</p>
+                        <ol>
+                            <li>Click on your avatar in the top-right corner</li>
+                            <li>Select <code>Settings</code> from the dropdown menu</li>
+                            <li>In the <code>Profile</code> tab, you can update:</li>
+                            <ul>
+                                <li>Profile picture</li>
+                                <li>Display name</li>
+                                <li>Bio/description</li>
+                                <li>Social media links</li>
+                                <li>Genre preferences</li>
+                            </ul>
+                            <li>Click <code>Save Changes</code> when done</li>
+                        </ol>
+                        
+                        <h3>Notification Preferences</h3>
+                        <p>Customize which notifications you receive:</p>
+                        <ol>
+                            <li>Go to <code>Settings</code> > <code>Notifications</code></li>
+                            <li>Toggle on/off different notification types:</li>
+                            <ul>
+                                <li>Project comments</li>
+                                <li>Collaboration invites</li>
+                                <li>Project updates</li>
+                                <li>Marketing emails</li>
+                            </ul>
+                            <li>Choose delivery methods (email, in-app, or both)</li>
+                        </ol>
+                        
+                        <h3>Security Settings</h3>
+                        <p>Keep your account secure:</p>
+                        <ul>
+                            <li><strong>Change Password:</strong> Go to <code>Settings</code> > <code>Security</code></li>
+                            <li><strong>Two-Factor Authentication:</strong> Enable for additional security</li>
+                            <li><strong>Connected Apps:</strong> Manage third-party applications with access to your account</li>
+                            <li><strong>Login History:</strong> Review recent login activity</li>
+                        </ul>
+                        
+                        <div class="warning">
+                            <p><strong>Important:</strong> If you suspect unauthorized access to your account, change your password immediately and contact support.</p>
+                        </div>
+                    </section>
+                    
+                    <section id="faq" class="help-section">
+                        <h2>Frequently Asked Questions</h2>
+                        
+                        <h3>General Questions</h3>
+                        
+                        <h4>What browsers are supported?</h4>
+                        <p>Rythmit works best on Chrome, Firefox, Edge, and Safari (latest versions). Internet Explorer is not supported.</p>
+                        
+                        <h4>Is there a mobile app?</h4>
+                        <p>Currently, Rythmit is optimized for desktop use. A mobile app is in development and will be released in the future.</p>
+                        
+                        <h4>How much storage do I get?</h4>
+                        <p>Free accounts include 2GB of storage. Premium accounts offer 50GB, and Professional accounts have 200GB of storage.</p>
+                        
+                        <h3>Technical Questions</h3>
+                        
+                        <h4>Why is audio playback choppy?</h4>
+                        <p>This could be due to several factors:</p>
+                        <ul>
+                            <li>Insufficient computer resources (CPU/RAM)</li>
+                            <li>Slow internet connection</li>
+                            <li>Too many browser tabs or applications running</li>
+                            <li>Large project with many tracks and effects</li>
+                        </ul>
+                        <p>Try closing other applications, reducing the number of effects, or lowering the buffer size in audio settings.</p>
+                        
+                        <h4>Can I use my own audio interface?</h4>
+                        <p>Yes, Rythmit supports most USB audio interfaces through the Web Audio API. Select your interface as the input/output device in the audio settings.</p>
+                        
+                        <h4>How do I export my project?</h4>
+                        <p>To export your project:</p>
+                        <ol>
+                            <li>Click <code>File</code> > <code>Export</code></li>
+                            <li>Choose your preferred format (WAV, MP3, etc.)</li>
+                            <li>Select quality settings</li>
+                            <li>Click <code>Export</code> to download the file</li>
+                        </ol>
+                        
+                        <h3>Billing Questions</h3>
+                        
+                        <h4>How do I upgrade my account?</h4>
+                        <p>Go to <code>Settings</code> > <code>Billing</code> and select the plan that fits your needs. Follow the prompts to complete payment.</p>
+                        
+                        <h4>What payment methods are accepted?</h4>
+                        <p>We accept credit/debit cards (Visa, Mastercard, American Express) and PayPal.</p>
+                        
+                        <h4>Can I get a refund?</h4>
+                        <p>We offer a 14-day money-back guarantee for new subscriptions. Contact support to request a refund within this period.</p>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <%- include('partials/footer') %>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle navigation
+            const navLinks = document.querySelectorAll('.help-nav-link');
+            const sections = document.querySelectorAll('.help-section');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links and sections
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    const targetId = this.getAttribute('href').substring(1);
+                    document.getElementById(targetId).classList.add('active');
+                    
+                    // Scroll to top of section
+                    window.scrollTo({
+                        top: document.querySelector('.page-header').offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

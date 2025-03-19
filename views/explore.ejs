@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore | MusicHub</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 296px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+            padding: 24px 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px 32px;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+
+        .search-container {
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            display: flex;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 0 rgba(27,31,36,0.04);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            background-color: transparent;
+            border: none;
+            color: #c9d1d9;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31,111,235,0.3);
+        }
+
+        .search-button {
+            padding: 12px 20px;
+            background-color: #238636;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .search-button:hover {
+            background-color: #2ea043;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .filter-select {
+            padding: 8px 32px 8px 12px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            font-weight: 500;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b949e' viewBox='0 0 16 16'%3E%3Cpath d='M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 7H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+
+        .filter-select:hover {
+            background-color: #30363d;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31,111,235,0.3);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 16px;
+        }
+
+        .project-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .project-card:hover {
+            border-color: #8b949e;
+        }
+
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .project-card-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .project-card-header h3 a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .project-card-header h3 a:hover {
+            color: #1f6feb;
+            text-decoration: underline;
+        }
+
+        .project-visibility {
+            font-size: 12px;
+            padding: 1px 7px;
+            border-radius: 2em;
+            font-weight: 500;
+            line-height: 18px;
+            white-space: nowrap;
+        }
+
+        .project-visibility.public {
+            color: #7ee787;
+            background-color: rgba(87,171,90,0.15);
+            border: 1px solid rgba(87,171,90,0.4);
+        }
+
+        .project-description {
+            color: #8b949e;
+            font-size: 12px;
+            margin: 4px 0 16px 0;
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #21262d;
+        }
+
+        .project-owner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-owner img {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .project-owner a {
+            color: #8b949e;
+            text-decoration: none;
+        }
+
+        .project-owner a:hover {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 32px;
+            gap: 4px;
+        }
+
+        .pagination-button {
+            padding: 5px 12px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .pagination-button:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+        }
+
+        .pagination-button.active {
+            background-color: #1f6feb;
+            color: #ffffff;
+            border-color: #1f6feb;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 64px 32px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+
+        .no-results h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e6edf3;
+        }
+
+        .no-results p {
+            color: #8b949e;
+            margin: 0;
+        }
+
+        .no-results a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .no-results a:hover {
+            text-decoration: underline;
+        }
+
+        .search-type-toggle {
+            display: inline-flex;
+            margin-bottom: 16px;
+            background-color: #161b22;
+            border-radius: 6px;
+            padding: 2px;
+            border: 1px solid #30363d;
+        }
+
+        .search-type-button {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: #c9d1d9;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .search-type-button.active {
+            background-color: #1f6feb;
+            color: #ffffff;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .user-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .user-card:hover {
+            border-color: #8b949e;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-name a {
+            color: #c9d1d9;
+            text-decoration: none;
+        }
+
+        .user-name a:hover {
+            color: #58a6ff;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .user-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Explore</h1>
+            </div>
+            
+            <div class="search-type-toggle">
+                <button id="search-projects-btn" class="search-type-button active">Projects</button>
+                <button id="search-users-btn" class="search-type-button">Users</button>
+            </div>
+            
+            <div id="projects-search" class="search-container">
+                <form action="/explore" method="GET" class="search-box">
+                    <input type="text" name="q" placeholder="Search projects..." class="search-input" value="<%= locals.query || '' %>">
+                    <button type="submit" class="search-button">Search</button>
+                </form>
+            </div>
+            
+            <div id="users-search" class="search-container" style="display: none;">
+                <form action="/users" method="GET" class="search-box">
+                    <input type="text" name="q" placeholder="Search users..." class="search-input" value="<%= locals.userQuery || '' %>">
+                    <button type="submit" class="search-button">Search</button>
+                </form>
+            </div>
+            
+            <div id="projects-filters" class="filter-container">
+                <select name="sort" class="filter-select" id="sort-select">
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="popular">Most Popular</option>
+                </select>
+                
+                <select name="genre" class="filter-select" id="genre-select">
+                    <option value="">All Genres</option>
+                    <option value="rock">Rock</option>
+                    <option value="pop">Pop</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="hiphop">Hip Hop</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="classical">Classical</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div id="projects-content">
+                <% if (locals.projects && projects.length > 0) { %>
+                    <div class="projects-grid">
+                        <% projects.forEach(project => { %>
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                                    <span class="project-visibility public">Public</span>
+                                </div>
+                                <div class="project-description">
+                                    <%= project.description || 'No description provided' %>
+                                </div>
+                                <div class="project-meta">
+                                    <div class="project-owner">
+                                        <img src="<%= project.owner && project.owner.avatar ? project.owner.avatar : '/img/default-avatar.png' %>" alt="<%= project.owner && project.owner.username ? project.owner.username : 'Unknown user' %>">
+                                        <span><a href="/users/<%= project.owner && project.owner._id ? project.owner._id : '' %>"><%= project.owner && project.owner.username ? project.owner.username : 'Unknown user' %></a></span>
+                                    </div>
+                                    <div class="project-date">
+                                        Updated <%= new Date(project.updatedAt).toLocaleDateString() %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    
+                    <div class="pagination">
+                        <% if (locals.currentPage > 1) { %>
+                            <a href="/explore?page=<%= currentPage - 1 %><%= locals.query ? '&q=' + query : '' %><%= locals.sort ? '&sort=' + sort : '' %><%= locals.genre ? '&genre=' + genre : '' %>" class="pagination-button">Previous</a>
+                        <% } %>
+                        
+                        <% for(let i = 1; i <= locals.totalPages; i++) { %>
+                            <a href="/explore?page=<%= i %><%= locals.query ? '&q=' + query : '' %><%= locals.sort ? '&sort=' + sort : '' %><%= locals.genre ? '&genre=' + genre : '' %>" class="pagination-button <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+                        <% } %>
+                        
+                        <% if (locals.currentPage < locals.totalPages) { %>
+                            <a href="/explore?page=<%= currentPage + 1 %><%= locals.query ? '&q=' + query : '' %><%= locals.sort ? '&sort=' + sort : '' %><%= locals.genre ? '&genre=' + genre : '' %>" class="pagination-button">Next</a>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="no-results">
+                        <h3>No projects found</h3>
+                        <p>Try adjusting your search or filters, or <a href="/projects/new">create a new project</a>.</p>
+                    </div>
+                <% } %>
+            </div>
+            
+            <div id="users-content" style="display: none;">
+                <div class="users-grid">
+                    <!-- User results will be loaded here -->
+                </div>
+                <div class="pagination" id="users-pagination">
+                    <!-- User pagination will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <%- include('partials/footer') %>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortSelect = document.getElementById('sort-select');
+            const genreSelect = document.getElementById('genre-select');
+            const searchProjectsBtn = document.getElementById('search-projects-btn');
+            const searchUsersBtn = document.getElementById('search-users-btn');
+            const projectsSearch = document.getElementById('projects-search');
+            const usersSearch = document.getElementById('users-search');
+            const projectsFilters = document.getElementById('projects-filters');
+            const projectsContent = document.getElementById('projects-content');
+            const usersContent = document.getElementById('users-content');
+            
+            // Toggle between projects and users search
+            searchProjectsBtn.addEventListener('click', function() {
+                searchProjectsBtn.classList.add('active');
+                searchUsersBtn.classList.remove('active');
+                projectsSearch.style.display = 'block';
+                usersSearch.style.display = 'none';
+                projectsFilters.style.display = 'flex';
+                projectsContent.style.display = 'block';
+                usersContent.style.display = 'none';
+            });
+            
+            searchUsersBtn.addEventListener('click', function() {
+                searchProjectsBtn.classList.remove('active');
+                searchUsersBtn.classList.add('active');
+                projectsSearch.style.display = 'none';
+                usersSearch.style.display = 'block';
+                projectsFilters.style.display = 'none';
+                projectsContent.style.display = 'none';
+                usersContent.style.display = 'block';
+                
+                // Load users if not already loaded
+                if (usersContent.querySelector('.users-grid').children.length === 0) {
+                    fetchUsers();
+                }
+            });
+            
+            // Apply filters when changed
+            sortSelect.addEventListener('change', applyFilters);
+            genreSelect.addEventListener('change', applyFilters);
+            
+            // Set initial values from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('sort')) {
+                sortSelect.value = urlParams.get('sort');
+            }
+            if (urlParams.has('genre')) {
+                genreSelect.value = urlParams.get('genre');
+            }
+            
+            function applyFilters() {
+                const currentUrl = new URL(window.location.href);
+                const params = new URLSearchParams(currentUrl.search);
+                
+                params.set('sort', sortSelect.value);
+                
+                if (genreSelect.value) {
+                    params.set('genre', genreSelect.value);
+                } else {
+                    params.delete('genre');
+                }
+                
+                // Keep the current page and search query if they exist
+                if (!params.has('page')) {
+                    params.set('page', '1');
+                }
+                
+                window.location.href = `${currentUrl.pathname}?${params.toString()}`;
+            }
+            
+            // Fetch users from API
+            function fetchUsers(page = 1, query = '') {
+                const usersGrid = usersContent.querySelector('.users-grid');
+                const usersPagination = document.getElementById('users-pagination');
+                
+                // Show loading state
+                usersGrid.innerHTML = '<div class="no-results"><h3>Loading users...</h3></div>';
+                
+                fetch(`/api/users?page=${page}&q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.users && data.users.length > 0) {
+                            usersGrid.innerHTML = '';
+                            
+                            data.users.forEach(user => {
+                                const userCard = document.createElement('div');
+                                userCard.className = 'user-card';
+                                userCard.innerHTML = `
+                                    <img src="${user.avatar || '/img/default-avatar.png'}" alt="${user.username}" class="user-avatar">
+                                    <div class="user-info">
+                                        <div class="user-name"><a href="/users/${user._id}">${user.username}</a></div>
+                                        <div class="user-stats">
+                                            <span>${user.projectCount || 0} Projects</span>
+                                            <span>${user.followers || 0} Followers</span>
+                                        </div>
+                                    </div>
+                                `;
+                                usersGrid.appendChild(userCard);
+                            });
+                            
+                            // Create pagination
+                            usersPagination.innerHTML = '';
+                            
+                            if (data.currentPage > 1) {
+                                const prevButton = document.createElement('a');
+                                prevButton.className = 'pagination-button';
+                                prevButton.textContent = 'Previous';
+                                prevButton.href = '#';
+                                prevButton.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    fetchUsers(data.currentPage - 1, query);
+                                });
+                                usersPagination.appendChild(prevButton);
+                            }
+                            
+                            for (let i = 1; i <= data.totalPages; i++) {
+                                const pageButton = document.createElement('a');
+                                pageButton.className = `pagination-button ${i === data.currentPage ? 'active' : ''}`;
+                                pageButton.textContent = i;
+                                pageButton.href = '#';
+                                pageButton.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    fetchUsers(i, query);
+                                });
+                                usersPagination.appendChild(pageButton);
+                            }
+                            
+                            if (data.currentPage < data.totalPages) {
+                                const nextButton = document.createElement('a');
+                                nextButton.className = 'pagination-button';
+                                nextButton.textContent = 'Next';
+                                nextButton.href = '#';
+                                nextButton.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    fetchUsers(data.currentPage + 1, query);
+                                });
+                                usersPagination.appendChild(nextButton);
+                            }
+                        } else {
+                            usersGrid.innerHTML = `
+                                <div class="no-results">
+                                    <h3>No users found</h3>
+                                    <p>Try adjusting your search criteria.</p>
+                                </div>
+                            `;
+                            usersPagination.innerHTML = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching users:', error);
+                        usersGrid.innerHTML = `
+                            <div class="no-results">
+                                <h3>Error loading users</h3>
+                                <p>Please try again later.</p>
+                            </div>
+                        `;
+                        usersPagination.innerHTML = '';
+                    });
+            }
+            
+            // Handle user search form submission
+            usersSearch.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = this.querySelector('input[name="q"]').value;
+                fetchUsers(1, query);
+            });
+            
+            // Connect to Socket.IO for real-time updates
+            const socket = io();
+            
+            // Listen for new project events
+            socket.on('new-project', function(data) {
+                // If we're on the first page and sorting by newest, add the new project
+                if (sortSelect.value === 'newest' && (!urlParams.has('page') || urlParams.get('page') === '1')) {
+                    const projectsGrid = document.querySelector('.projects-grid');
+                    
+                    // Create new project card
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card';
+                    projectCard.innerHTML = `
+                        <div class="project-card-header">
+                            <h3><a href="/projects/${data.project._id}">${data.project.name}</a></h3>
+                            <span class="project-visibility public">Public</span>
+                        </div>
+                        <div class="project-description">
+                            ${data.project.description || 'No description provided'}
+                        </div>
+                        <div class="project-meta">
+                            <div class="project-owner">
+                                <img src="${data.project.owner && data.project.owner.avatar ? data.project.owner.avatar : '/img/default-avatar.png'}" alt="${data.project.owner && data.project.owner.username ? data.project.owner.username : 'Unknown user'}">
+                                <span><a href="/users/${data.project.owner && data.project.owner._id ? data.project.owner._id : ''}">${data.project.owner && data.project.owner.username ? data.project.owner.username : 'Unknown user'}</a></span>
+                            </div>
+                            <div class="project-date">
+                                Updated ${new Date(data.project.updatedAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to the beginning of the grid
+                    projectsGrid.insertBefore(projectCard, projectsGrid.firstChild);
+                    
+                    // If there was a "no results" message, remove it
+                    const noResults = document.querySelector('.no-results');
+                    if (noResults) {
+                        noResults.remove();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

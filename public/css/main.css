@@ -1,0 +1,17 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  :root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --accent-color: #f43f5e;
+    --text-color: #0f172a;
+    --text-light: #64748b;
+    --bg-color: #f8fafc;
+    --bg-dark: #f1f5f9;
+    --border-color: #e2e8f0;
+    --

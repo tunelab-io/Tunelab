@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborations | MusicHub</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .btn {
+            padding: 6px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
+        
+        .btn-outline:hover {
+            background-color: #30363d;
+            color: #e6edf3;
+        }
+        
+        .collaboration-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .collaboration-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .collaboration-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .collaboration-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .collaboration-card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .collaboration-card-header h3 a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        
+        .collaboration-card-header h3 a:hover {
+            text-decoration: underline;
+        }
+        
+        .project-owner {
+            font-size: 14px;
+            color: #8b949e;
+            margin: 8px 0;
+        }
+        
+        .project-owner a {
+            color: #c9d1d9;
+            text-decoration: none;
+        }
+        
+        .project-owner a:hover {
+            color: #58a6ff;
+            text-decoration: underline;
+        }
+        
+        .collaboration-description {
+            color: #8b949e;
+            font-size: 14px;
+            margin: 8px 0 16px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .collaboration-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 16px;
+        }
+        
+        .collaboration-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: rgba(35, 134, 54, 0.15);
+            color: #3fb950;
+        }
+        
+        .status-pending {
+            background-color: rgba(187, 128, 9, 0.15);
+            color: #e3b341;
+        }
+        
+        .status-completed {
+            background-color: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 0;
+            color: #8b949e;
+        }
+        
+        .empty-state h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #c9d1d9;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 48px 0;
+            color: #f85149;
+        }
+
+        .error-state h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .error-state p {
+            font-size: 16px;
+            margin-bottom: 24px;
+            color: #8b949e;
+        }
+
+        .error-state .btn {
+            margin: 0 8px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            color: #8b949e;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: #58a6ff;
+            border-bottom-color: #58a6ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn-accept {
+            background-color: #238636;
+        }
+
+        .btn-reject {
+            background-color: #da3633;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Collaborations</h1>
+                <a href="/explore" class="btn btn-primary">Find Projects</a>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="active">Active Collaborations</div>
+                <div class="tab" data-tab="requests">Collaboration Requests</div>
+            </div>
+            
+            <% if (typeof error !== 'undefined') { %>
+                <div class="error-state">
+                    <h2>Oops! Something went wrong</h2>
+                    <p><%= error %></p>
+                    <div>
+                        <button onclick="window.location.reload()" class="btn btn-outline">Try Again</button>
+                        <a href="/dashboard" class="btn btn-outline">Go to Dashboard</a>
+                    </div>
+                </div>
+            <% } else { %>
+                <div id="active-tab" class="tab-content active">
+                    <% if (projects && projects.length > 0) { %>
+                        <div class="collaboration-list">
+                            <% projects.forEach(project => { %>
+                                <div class="collaboration-card">
+                                    <div class="collaboration-card-header">
+                                        <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                                        <span class="collaboration-status status-active">Active</span>
+                                    </div>
+                                    <div class="project-owner">
+                                        by <a href="/users/<%= project.owner._id %>"><%= project.owner.username %></a>
+                                    </div>
+                                    <div class="collaboration-description">
+                                        <%= project.description || 'No description provided.' %>
+                                    </div>
+                                    <div class="collaboration-meta">
+                                        <span>Last updated: <%= new Date(project.updatedAt).toLocaleDateString() %></span>
+                                        <span>Role: <%= project.collaborators.find(c => c.user.toString() === user._id.toString()).role %></span>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <h2>No active collaborations</h2>
+                            <p>You're not collaborating on any projects yet. Explore projects to find collaboration opportunities.</p>
+                            <a href="/explore" class="btn btn-outline">Explore Projects</a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div id="requests-tab" class="tab-content">
+                    <% if (typeof collaborationRequests !== 'undefined' && collaborationRequests.length > 0) { %>
+                        <div class="collaboration-list">
+                            <% collaborationRequests.forEach(request => { %>
+                                <div class="collaboration-card">
+                                    <div class="collaboration-card-header">
+                                        <h3><a href="/projects/<%= request.project._id %>"><%= request.project.name %></a></h3>
+                                        <span class="collaboration-status status-pending">Pending</span>
+                                    </div>
+                                    <div class="project-owner">
+                                        from <a href="/users/<%= request.from._id %>"><%= request.from.username %></a>
+                                    </div>
+                                    <div class="collaboration-description">
+                                        <%= request.message || 'No message provided.' %>
+                                    </div>
+                                    <div class="collaboration-meta">
+                                        <span>Requested: <%= new Date(request.createdAt).toLocaleDateString() %></span>
+                                        <span>Role: <%= request.role %></span>
+                                    </div>
+                                    <div class="request-actions">
+                                        <button class="btn btn-accept" onclick="handleRequest('<%= request._id %>', 'accept')">Accept</button>
+                                        <button class="btn btn-reject" onclick="handleRequest('<%= request._id %>', 'reject')">Reject</button>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <h2>No pending requests</h2>
+                            <p>You don't have any collaboration requests at the moment.</p>
+                        </div>
+                    <% } %>
+                </div>
+            <% } %>
+        </main>
+    </div>
+    <%- include('partials/footer') %>
+    
+    <script>
+        const socket = io();
+        
+        socket.on('collaboration_update', (data) => {
+            if (data.userId === '<%= user._id %>') {
+                window.location.reload();
+            }
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+            showError('Lost connection to server. Please check your internet connection.');
+        });
+
+        socket.on('error', (error) => {
+            console.error('Socket error:', error);
+            showError('An error occurred. Please try again later.');
+        });
+
+        function showError(message) {
+            const mainContent = document.querySelector('.main-content');
+            const errorHtml = `
+                <div class="error-state">
+                    <h2>Connection Error</h2>
+                    <p>${message}</p>
+                    <div>
+                        <button onclick="window.location.reload()" class="btn btn-outline">Try Again</button>
+                        <a href="/dashboard" class="btn btn-outline">Go to Dashboard</a>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = errorHtml;
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        // Handle collaboration requests
+        async function handleRequest(requestId, action) {
+            try {
+                const response = await fetch(`/api/collaboration-requests/${requestId}/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    showError(data.error || 'Failed to process request');
+                }
+            } catch (error) {
+                console.error('Request handling error:', error);
+                showError('Failed to process request');
+            }
+        }
+    </script>
+</body>
+</html>

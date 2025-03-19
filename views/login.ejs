@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MusicHub</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .login-container {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 32px 40px;
+            width: 340px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 24px;
+            width: 48px;
+            height: 48px;
+        }
+        h1 {
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 400;
+            text-align: center;
+            letter-spacing: -0.5px;
+            color: #e6edf3;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8b949e;
+        }
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+        input:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+        .forgot-password {
+            display: block;
+            text-align: right;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        button {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #238636;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #2ea043;
+        }
+        button:active {
+            background-color: #238636;
+            transform: translateY(1px);
+        }
+        a {
+            color: #58a6ff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        a:hover {
+            color: #79b8ff;
+            text-decoration: underline;
+        }
+        p {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+        .error-message {
+            background-color: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.2);
+            color: #f85149;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+        .error-message.visible {
+            display: block;
+        }
+        .divider {
+            margin: 24px 0;
+            border: 0;
+            border-top: 1px solid #30363d;
+        }
+        .social-login {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .social-btn:hover {
+            background-color: #30363d;
+        }
+        .social-icon {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM7.5 16.5V7.5L16.5 12L7.5 16.5Z" fill="#58a6ff"/>
+        </svg>
+        <h1>Sign in to MusicHub</h1>
+        
+        <div id="error-message" class="error-message">
+            Incorrect username or password. Please try again.
+        </div>
+        
+        <div class="social-login">
+            <button class="social-btn" type="button" title="Sign in with Google">
+                <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z" fill="#c9d1d9"/>
+                </svg>
+            </button>
+            <button class="social-btn" type="button" title="Sign in with GitHub">
+                <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="#c9d1d9"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <form action="/login" method="POST" id="login-form">
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="text" id="email" name="email" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+                <a href="/forgot-password" class="forgot-password">Forgot password?</a>
+            </div>
+            <button type="submit">Sign in</button>
+        </form>
+        <p>New to MusicHub? <a href="/register">Create an account →</a></p>
+    </div>
+    
+    <script>
+        // Check for error parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            document.getElementById('error-message').classList.add('visible');
+        }
+        
+        // Form validation
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                event.preventDefault();
+                document.getElementById('error-message').textContent = 'Please enter both email and password.';
+                document.getElementById('error-message').classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

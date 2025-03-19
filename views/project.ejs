@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= project.name %> | Rythmit</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/project.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .project-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .project-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .project-visibility {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .project-visibility.public {
+            background-color: rgba(35, 134, 54, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(35, 134, 54, 0.4);
+        }
+        
+        .project-visibility.private {
+            background-color: rgba(187, 128, 9, 0.15);
+            color: #e3b341;
+            border: 1px solid rgba(187, 128, 9, 0.4);
+        }
+        
+        .project-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+        
+        .btn-outline {
+            background-color: #21262d;
+            border-color: rgba(240, 246, 252, 0.1);
+            color: #c9d1d9;
+        }
+        
+        .btn-outline:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+            color: #e6edf3;
+        }
+        
+        .btn-danger {
+            background-color: #da3633;
+            color: #ffffff;
+        }
+        
+        .btn-danger:hover {
+            background-color: #f85149;
+        }
+        
+        .btn-sm {
+            padding: 3px 12px;
+            font-size: 12px;
+        }
+        
+        .project-description {
+            margin-bottom: 24px;
+            color: #8b949e;
+            font-size: 14px;
+            padding: 16px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        
+        .project-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            padding: 12px 16px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        
+        .meta-item {
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .meta-item strong {
+            color: #c9d1d9;
+        }
+        
+        .project-tabs {
+            display: flex;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 24px;
+            background-color: #161b22;
+            border-radius: 6px 6px 0 0;
+            padding: 0 16px;
+        }
+        
+        .tab-btn {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8b949e;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-btn:hover {
+            color: #c9d1d9;
+        }
+        
+        .tab-btn.active {
+            color: #c9d1d9;
+            border-bottom-color: #f78166;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 16px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-content h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e6edf3;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 0;
+            color: #8b949e;
+            background-color: #161b22;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        
+        .empty-state p {
+            margin-bottom: 16px;
+        }
+        
+        .version-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .version-item {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        
+        .version-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .version-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .version-content h3 a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        
+        .version-content h3 a:hover {
+            text-decoration: underline;
+        }
+        
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-bottom: 1px solid #30363d;
+            transition: background-color 0.2s ease;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-item:hover {
+            background-color: #1c2128;
+        }
+        
+        .file-icon {
+            margin-right: 12px;
+            color: #8b949e;
+        }
+        
+        .file-name {
+            flex: 1;
+            color: #58a6ff;
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: #8b949e;
+            font-size: 12px;
+            background-color: #1c2128;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .collaborators-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .collaborator-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        
+        .collaborator-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+        
+        .collaborator-info {
+            flex: 1;
+        }
+        
+        .collaborator-name {
+            font-weight: 500;
+            margin: 0;
+            color: #e6edf3;
+        }
+        
+        .collaborator-role {
+            font-size: 12px;
+            color: #8b949e;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background-color: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, 0.4);
+        }
+        
+        .add-collaborator-form {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        
+        .add-collaborator-form h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e6edf3;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8b949e;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+        
+        .comments-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .comment-author {
+            font-weight: 500;
+            color: #e6edf3;
+        }
+        
+        .comment-date {
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .comment-text {
+            color: #c9d1d9;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .comment-timestamp {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 12px;
+            background-color: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, 0.4);
+        }
+        
+        .comment-form {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        
+        .comment-form h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e6edf3;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .comment-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: #161b22;
+            margin: 10% auto;
+            padding: 24px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .close {
+            position: absolute;
+            right: 24px;
+            top: 16px;
+            color: #8b949e;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #e6edf3;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="project-header">
+                <div class="project-title">
+                    <h1><%= project.name %></h1>
+                    <span class="project-visibility <%= project.isPublic ? 'public' : 'private' %>">
+                        <%= project.isPublic ? 'Public' : 'Private' %>
+                    </span>
+                </div>
+                <div class="project-actions">
+                    <% if (user && project.owner && project.owner._id && user._id && project.owner._id.toString() === user._id.toString()) { %>
+                        <button class="btn btn-outline" id="inviteCollaboratorBtn">Invite Collaborator</button>
+                    <% } %>
+                    <button class="btn btn-outline" id="forkProjectBtn">Fork</button>
+                    <a href="/projects/<%= project._id %>/versions/new" class="btn btn-primary">Upload Version</a>
+                </div>
+            </div>
+            
+            <div class="project-description">
+                <p><%= project.description || 'No description provided' %></p>
+            </div>
+            
+            <div class="project-meta">
+                <div class="meta-item">
+                    <strong>Owner:</strong> <%= project.owner.username %>
+                </div>
+                <div class="meta-item">
+                    <strong>Created:</strong> <%= new Date(project.createdAt).toLocaleDateString() %>
+                </div>
+                <div class="meta-item">
+                    <strong>Last Updated:</strong> <%= new Date(project.updatedAt).toLocaleDateString() %>
+                </div>
+            </div>
+            
+            <div class="project-tabs">
+                <button class="tab-btn active" data-tab="versions">Versions</button>
+                <button class="tab-btn" data-tab="collaborators">Collaborators</button>
+                <button class="tab-btn" data-tab="comments">Comments</button>
+            </div>
+            
+            <div id="versions" class="tab-content active">
+                <h2>Version History</h2>
+                <% if (!project.versions || project.versions.length === 0) { %>
+                    <div class="empty-state">
+                        <p>No versions yet</p>
+                        <a href="/projects/<%= project._id %>/versions/new" class="btn btn-primary">Upload First Version</a>
+                    </div>
+                <% } else { %>
+                    <div class="version-timeline">
+                        <% project.versions.forEach(version => { %>
+                            <div class="version-item">
+                                <div class="version-meta">
+                                    <span class="version-date"><%= new Date(version.createdAt).toLocaleString() %></span>
+                                    <span class="version-author"><%= version.creator.username %></span>
+                                </div>
+                                <div class="version-content">
+                                    <h3>
+                                        <a href="/projects/<%= project._id %>/versions/<%= version._id %>">
+                                            <%= version.message %>
+                                        </a>
+                                    </h3>
+                                    <div class="version-files">
+                                        <% if (!version.files || version.files.length === 0) { %>
+                                            <p>No files in this version</p>
+                                        <% } else { %>
+                                            <ul class="file-list">
+                                                <% version.files.forEach(file => { %>
+                                                    <li class="file-item">
+                                                        <span class="file-icon"><%= file.fileType && file.fileType.includes('audio') ? '🎵' : '📄' %></span>
+                                                        <span class="file-name"><%= file.originalName %></span>
+                                                        <span class="file-size"><%= (file.size / (1024 * 1024)).toFixed(2) %> MB</span>
+                                                    </li>
+                                                <% }); %>
+                                            </ul>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </div>
+            
+            <div id="collaborators" class="tab-content">
+                <h2>Collaborators</h2>
+                <div class="collaborators-list">
+                    <div class="collaborator-item owner">
+                        <div class="collaborator-avatar">
+                            <%= project.owner.username.charAt(0).toUpperCase() %>
+                        </div>
+                        <div class="collaborator-info">
+                            <p class="collaborator-name"><%= project.owner.username %></p>
+                            <span class="collaborator-role">Owner</span>
+                        </div>
+                    </div>
+                    
+                    <% project.collaborators.forEach(collaborator => { %>
+                        <div class="collaborator-item">
+                            <div class="collaborator-avatar">
+                                <%= collaborator && collaborator.user && collaborator.user.username ? collaborator.user.username.charAt(0).toUpperCase() : '?' %>
+                            </div>
+                            <div class="collaborator-info">
+                                <p class="collaborator-name"><%= collaborator && collaborator.user && collaborator.user.username ? collaborator.user.username : 'Unknown User' %></p>
+                                <span class="collaborator-role"><%= collaborator && collaborator.role ? collaborator.role : 'Collaborator' %></span>
+                            </div>
+                            <% if (user && project.owner && project.owner._id && user._id && project.owner._id.toString() === user._id.toString()) { %>
+                                <button class="btn btn-danger btn-sm remove-collaborator" data-id="<%= collaborator && collaborator.user ? collaborator.user._id : '' %>">Remove</button>
+                            <% } %>
+                        </div>
+                    <% }); %>
+                </div>
+                
+                <% if (user && project.owner && project.owner._id && user._id && project.owner._id.toString() === user._id.toString()) { %>
+                    <div class="add-collaborator-form">
+                        <h3>Add Collaborator</h3>
+                        <form action="/projects/<%= project._id %>/collaborate" method="POST">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select id="role" name="role" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="producer">Producer</option>
+                                    <option value="vocalist">Vocalist</option>
+                                    <option value="mixer">Mixer</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Collaborator</button>
+                        </form>
+                    </div>
+                <% } %>
+            </div>
+            
+            <div id="comments" class="tab-content">
+                <h2>Project Comments</h2>
+                <div class="comments-container">
+                    <% if (!project.comments || project.comments.length === 0) { %>
+                        <p>No comments yet</p>
+                    <% } else { %>
+                        <div class="comments-list">
+                            <% project.comments.forEach(comment => { %>
+                                <div class="comment-item">
+                                    <div class="comment-avatar">
+                                        <%= comment.user.username.charAt(0).toUpperCase() %>
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <span class="comment-author"><%= comment.user.username %></span>
+                                            <span class="comment-date"><%= new Date(comment.createdAt).toLocaleString() %></span>
+                                        </div>
+                                        <div class="comment-text">
+                                            <%= comment.text %>
+                                        </div>
+                                        <% if (comment.timestamp) { %>
+                                            <div class="comment-timestamp">
+                                                @ <%= comment.timestamp %>s
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                    
+                    <div class="comment-form">
+                        <h3>Add Comment</h3>
+                        <form action="/projects/<%= project._id %>/comments" method="POST">
+                            <div class="form-group">
+                                <textarea name="text" placeholder="Write your comment..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Post Comment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Invite Collaborator Modal -->
+    <div id="inviteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Invite Collaborator</h2>
+            <form action="/projects/<%= project._id %>/collaborate" method="POST">
+                <div class="form-group">
+                    <label for="modal-email">Email</label>
+                    <input type="email" id="modal-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-role">Role</label>
+                    <select id="modal-role" name="role" required>
+                        <option value="admin">Admin</option>
+                        <option value="producer">Producer</option>
+                        <option value="vocalist">Vocalist</option>
+                        <option value="mixer">Mixer</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Send Invitation</button>
+            </form>
+        </div>
+    </div>
+    
+    <%- include('partials/footer') %>
+    
+    <script src="/js/main.js"></script>
+    <script src="/js/project.js"></script>
+    <script>
+        // Initialize Socket.IO
+        const socket = io();
+        socket.emit('join-project', '<%= project._id %>');
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab).classList.add('active');
+                });
+            });
+            
+            // Modal functionality
+            const modal = document.getElementById('inviteModal');
+            const btn = document.getElementById('inviteCollaboratorBtn');
+            const span = document.getElementsByClassName('close')[0];
+            
+            if (btn) {
+                btn.onclick = function() {
+                    modal.style.display = 'block';
+                }
+            }
+            
+            span.onclick = function() {
+                modal.style.display = 'none';
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+            
+            // Fork project
+            const forkBtn = document.getElementById('forkProjectBtn');
+            forkBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to fork this project?')) {
+                    fetch('/api/projects/<%= project._id %>/fork', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = `/projects/${data.projectId}`;
+                        } else {
+                            alert('Error forking project: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while forking the project');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

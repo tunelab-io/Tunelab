@@ -1,0 +1,37 @@
+{
+  "name": "musichub-desktop",
+  "version": "1.0.0",
+  "description": "Desktop application for MusicHub collaboration platform",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "test": "jest"
+  },
+  "author": "MusicHub",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^25.3.1",
+    "electron-store": "^8.1.0",
+    "socket.io-client": "^4.7.1",
+    "axios": "^1.4.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.6.3",
+    "jest": "^29.6.1"
+  },
+  "build": {
+    "appId": "com.musichub.desktop",
+    "productName": "MusicHub",
+    "mac": {
+      "category": "public.app-category.music"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

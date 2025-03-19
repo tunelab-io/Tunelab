@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rythmit - Version Control for Musicians</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --color-bg-primary: #0d1117;
+            --color-bg-secondary: #161b22;
+            --color-text-primary: #c9d1d9;
+            --color-text-secondary: #8b949e;
+            --color-accent-primary: #58a6ff;
+            --color-accent-secondary: #1f6feb;
+            --color-border: #30363d;
+            --color-success: #238636;
+            --color-success-hover: #2ea043;
+            --color-header: rgba(22, 27, 34, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background-color: var(--color-header);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            color: var(--color-text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        nav a {
+            color: var(--color-text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        nav a:hover {
+            color: var(--color-accent-primary);
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--color-success);
+            color: white;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-success-hover);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--color-accent-primary);
+            color: var(--color-accent-primary);
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 120px 5% 80px;
+            min-height: 90vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(29, 78, 216, 0.15), transparent 60%),
+                        radial-gradient(circle at bottom left, rgba(13, 148, 136, 0.1), transparent 60%);
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            z-index: 1;
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            max-width: 50%;
+            position: relative;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--color-border);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--color-accent-primary), #88d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-top: 20px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            margin-top: 32px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-proof {
+            margin-top: 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .social-proof p {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .trusted-by {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .trusted-by img {
+            height: 24px;
+            opacity: 0.7;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+
+        .trusted-by img:hover {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--color-text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--color-text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .features, .pricing {
+            padding: 80px 5%;
+            text-align: center;
+        }
+
+        .feature-grid, .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--color-bg-secondary);
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+            transition: all 0.2s ease;
+            text-align: left;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-accent-primary);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: var(--color-accent-primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            color: var(--color-text-primary);
+        }
+
+        .feature-card p {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .pricing-card {
+            background: var(--color-bg-secondary);
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            text-align: left;
+        }
+
+        .pricing-card.highlighted {
+            border-color: var(--color-success);
+            position: relative;
+        }
+
+        .pricing-card.highlighted::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .pricing-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: var(--color-text-primary);
+        }
+
+        .pricing-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 16px;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--color-text-secondary);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 16px 0;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .pricing-features li {
+            padding: 6px 0;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            font-size: 0.9375rem;
+        }
+
+        .pricing-features li::before {
+            content: "✓";
+            color: var(--color-success);
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .pricing-btn {
+            margin-top: 16px;
+        }
+
+        .demo-section {
+            padding: 80px 5%;
+            background-color: var(--color-bg-secondary);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(29, 78, 216, 0.1), transparent 50%);
+            z-index: 0;
+        }
+
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .demo-video {
+            width: 100%;
+            border-radius: 6px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--color-border);
+        }
+
+        .testimonials {
+            padding: 80px 5%;
+            background-color: var(--color-bg-primary);
+            position: relative;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 3rem;
+        }
+
+        .testimonial-card {
+            background: var(--color-bg-secondary);
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-accent-primary);
+        }
+
+        .testimonial-content {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .testimonial-author img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .author-info h4 {
+            color: var(--color-text-primary);
+            margin-bottom: 4px;
+            font-size: 0.9375rem;
+        }
+
+        .author-info p {
+            color: var(--color-text-secondary);
+            font-size: 0.8125rem;
+        }
+
+        .cta-section {
+            padding: 80px 5%;
+            text-align: center;
+            background: linear-gradient(to bottom, var(--color-bg-primary), var(--color-bg-secondary));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at bottom right, rgba(29, 78, 216, 0.15), transparent 60%);
+            z-index: 0;
+        }
+
+        .cta-content {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-content h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            color: var(--color-text-primary);
+        }
+
+        .cta-content p {
+            font-size: 1.125rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        footer {
+            padding: 48px 5% 24px;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .footer-column h3 {
+            color: var(--color-text-primary);
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-column a {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .footer-column a:hover {
+            color: var(--color-accent-primary);
+        }
+
+        .footer-bottom {
+            padding-top: 24px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            color: var(--color-text-secondary);
+            font-size: 1.125rem;
+            transition: color 0.2s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--color-accent-primary);
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fadeInUp {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Floating animation for hero image */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 100px;
+            }
+            
+            .hero-content {
+                max-width: 100%;
+                margin-bottom: 40px;
+            }
+            
+            .hero-image {
+                max-width: 80%;
+                justify-content: center;
+            }
+            
+            .cta-buttons {
+                justify-content: center;
+            }
+            
+            .social-proof {
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0.75rem 5%;
+            }
+            
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+            
+            .hero p {
+                font-size: 1.125rem;
+            }
+            
+            .section-title {
+                font-size: 1.75rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+            }
+            
+            .features, .pricing, .demo-section, .testimonials, .cta-section {
+                padding: 60px 5%;
+            }
+            
+            .footer-content {
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            nav {
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .hero-image {
+                max-width: 100%;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .cta-buttons .btn {
+                width: 100%;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo fadeInUp">
+            Rythmit
+        </div>
+        <nav>
+            <a href="#features" class="fadeInUp">Features</a>
+            <a href="#pricing" class="fadeInUp">Pricing</a>
+            <a href="#testimonials" class="fadeInUp">Testimonials</a>
+            <a href="/login" class="btn btn-outline fadeInUp">Sign in</a>
+            <a href="/register" class="btn btn-primary fadeInUp">Sign up</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content fadeInUp">
+            <h1>Where music meets version control</h1>
+            <p>Rythmit is the platform built for modern music production workflows. Track changes, collaborate in real-time, and create music like never before.</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn btn-primary">Join for free</a>
+                <a href="#demo" class="btn btn-outline">See how it works →</a>
+            </div>
+            <div class="social-proof">
+                <p>TRUSTED BY MUSICIANS AROUND THE WORLD</p>
+            
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="img/icons/background.png" alt="Rythmit Dashboard" class="float">
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <h2 class="section-title">Why musicians choose Rythmit</h2>
+        <p class="section-subtitle">Rythmit helps music creators build better projects, collaborate seamlessly, and keep track of every change in their creative process.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-code-branch"></i></div>
+                <h3>Version Control</h3>
+                <p>Track every change and version of your music projects. Revert to previous versions anytime, and never lose your creative work again.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Real-Time Collaboration</h3>
+                <p>Collaborate with bandmates and producers in real-time, no matter where they are. See changes as they happen.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-plug"></i></div>
+                <h3>DAW Integration</h3>
+                <p>Seamlessly integrate with popular DAWs like Ableton, Logic Pro, FL Studio, and Pro Tools with our native plugins.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-cloud"></i></div>
+                <h3>Cloud Sync</h3>
+                <p>Store your projects in the cloud, and access them from anywhere. Your music follows you wherever you go.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-comments"></i></div>
+                <h3>In-line Comments</h3>
+                <p>Leave feedback directly on specific parts of the track. No more confusing email threads or text messages.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Secure Sharing</h3>
+                <p>Share your work with clients or collaborators with granular access controls. You decide who sees what.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+        <h2 class="section-title">See Rythmit in action</h2>
+        <p class="section-subtitle">Watch how Rythmit transforms the way musicians collaborate and manage their projects</p>
+        <div class="demo-container">
+            <video class="demo-video" controls poster="/img/icons/background.png">
+            <source src="/videos/demo.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+            </video>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials">
+        <h2 class="section-title">Loved by musicians worldwide</h2>
+        <p class="section-subtitle">Join thousands of musicians and producers who are already using Rythmit to streamline their creative process</p>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-content">"Rythmit has completely transformed how our band collaborates. No more sending files back and forth or losing track of versions. It's like GitHub but for music!"</p>
+                <div class="testimonial-author">
+                    <img src="https://via.placeholder.com/40" alt="Alex Johnson">
+                    <div class="author-info">
+                        <h4>Alex Johnson</h4>
+                        <p>Lead Producer, Soundwave Studios</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-content">"As a solo artist working with multiple producers, Rythmit keeps everything organized. The version control is a lifesaver when I need to go back to earlier ideas."</p>
+                <div class="testimonial-author">
+                    <img src="https://via.placeholder.com/40" alt="Sarah Chen">
+                    <div class="author-info">
+                        <h4>Sarah Chen</h4>
+                        <p>Independent Artist</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-content">"Teaching music production remotely became so much easier with Rythmit. My students can share their progress, and I can provide feedback directly on specific parts of their tracks."</p>
+                <div class="testimonial-author">
+                    <img src="https://via.placeholder.com/40" alt="Marcus Williams">
+                    <div class="author-info">
+                        <h4>Marcus Williams</h4>
+                        <p>Music Production Instructor</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <h2 class="section-title">Simple, transparent pricing</h2>
+        <p class="section-subtitle">Choose the plan that's right for you or your team</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="pricing-price">$0 <span>/month</span></div>
+                <p>Perfect for hobbyists and creators just getting started.</p>
+                <ul class="pricing-features">
+                    <li>Up to 3 projects</li>
+                    <li>Basic version control</li>
+                    <li>2 collaborators per project</li>
+                    <li>1GB storage</li>
+                </ul>
+                <a href="/register" class="btn btn-outline pricing-btn">Sign up for free</a>
+            </div>
+            <div class="pricing-card highlighted">
+                <h3>Pro</h3>
+                <div class="pricing-price">$15 <span>/month</span></div>
+                <p>Unlock advanced features for professional creators.</p>
+                <ul class="pricing-features">
+                    <li>Unlimited projects</li>
+                    <li>Advanced version control</li>
+                    <li>10 collaborators per project</li>
+                    <li>50GB storage</li>
+                    <li>Priority support</li>
+                    <li>All DAW integrations</li>
+                </ul>
+                <a href="/register?plan=pro" class="btn btn-primary pricing-btn">Get started</a>
+            </div>
+            <div class="pricing-card">
+                <h3>Team</h3>
+                <div class="pricing-price">$40 <span>/month</span></div>
+                <p>Ideal for teams working on large music projects.</p>
+                <ul class="pricing-features">
+                    <li>Everything in Pro</li>
+                    <li>Unlimited collaborators</li>
+                    <li>200GB storage</li>
+                    <li>Team management tools</li>
+                    <li>Advanced analytics</li>
+                    <li>Dedicated support</li>
+                </ul>
+                <a href="/register?plan=team" class="btn btn-outline pricing-btn">Get started</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to transform your music workflow?</h2>
+            <p>Join thousands of musicians who are already using Rythmit to collaborate better and create faster.</p>
+            <a href="/register" class="btn btn-primary">Start for free</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="/security">Security</a></li>
+                    <li><a href="/roadmap">Roadmap</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="/docs">Documentation</a></li>
+                    <li><a href="/tutorials">Tutorials</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/support">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/careers">Careers</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/press">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/cookies">Cookie Policy</a></li>
+                    <li><a href="/licenses">Licenses</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Rythmit. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple scroll animation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.style.padding = '1rem 10%';
+                header.style.backgroundColor = 'rgba(22, 27, 34, 0.98)';
+            } else {
+                header.style.padding = '1.5rem 10%';
+                header.style.backgroundColor = 'rgba(22, 27, 34, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>

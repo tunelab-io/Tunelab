@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= version.project.name %> - Version | Rythmit</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/version.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .version-title {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .version-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .version-meta {
+            font-size: 14px;
+            color: #8b949e;
+        }
+        
+        .version-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+        
+        .btn-secondary {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #30363d;
+        }
+        
+        .files-section {
+            margin-top: 32px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e6edf3;
+        }
+        
+        .file-list {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-icon {
+            margin-right: 12px;
+            color: #8b949e;
+        }
+        
+        .file-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .audio-player {
+            margin-top: 32px;
+        }
+        
+        .audio-container {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        
+        .comments-section {
+            margin-top: 32px;
+        }
+        
+        .comment-list {
+            margin-bottom: 24px;
+        }
+        
+        .comment-item {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: #e6edf3;
+        }
+        
+        .comment-time {
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .comment-form {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        textarea:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="version-header">
+                <div class="version-title">
+                    <h1><%= version.project.name %> - Version</h1>
+                    <div class="version-meta">
+                        Created by <%= version.creator.username %> on <%= new Date(version.createdAt).toLocaleString() %>
+                    </div>
+                    <div class="version-message">
+                        <%= version.message %>
+                    </div>
+                </div>
+                <div class="version-actions">
+                    <a href="/projects/<%= version.project._id %>" class="btn btn-secondary">Back to Project</a>
+                </div>
+            </div>
+            
+            <div class="files-section">
+                <h2 class="section-title">Files</h2>
+                <div class="file-list">
+                    <% if (version.files && version.files.length > 0) { %>
+                        <% version.files.forEach(file => { %>
+                            <div class="file-item">
+                                <div class="file-icon">
+                                    <% if (file.fileType.startsWith('audio/')) { %>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M6 13c0 1.105-1.12 2-2.5 2S1 14.105 1 13c0-1.104 1.12-2 2.5-2s2.5.896 2.5 2zm9-2c0 1.105-1.12 2-2.5 2s-2.5-.895-2.5-2 1.12-2 2.5-2 2.5.895 2.5 2z"/>
+                                            <path fill-rule="evenodd" d="M14 11V2h1v9h-1zM6 3v10H5V3h1z"/>
+                                            <path d="M5 2.905a1 1 0 0 1 .9-.995l8-.8a1 1 0 0 1 1.1.995V3L5 4V2.905z"/>
+                                        </svg>
+                                    <% } else { %>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+                                        </svg>
+                                    <% } %>
+                                </div>
+                                <div class="file-name"><%= file.originalName %></div>
+                                <div class="file-actions">
+                                    <a href="<%= file.url %>" class="btn btn-secondary" download>Download</a>
+                                    <% if (file.fileType.startsWith('audio/')) { %>
+                                        <button class="btn btn-primary play-audio" data-url="<%= file.url %>">Play</button>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="file-item">No files in this version</div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="audio-player">
+                <h2 class="section-title">Audio Player</h2>
+                <div class="audio-container">
+                    <audio id="audio-player" controls style="width: 100%;">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+            
+            <div class="comments-section">
+                <h2 class="section-title">Comments</h2>
+                <div class="comment-list">
+                    <% if (comments && comments.length > 0) { %>
+                        <% comments.forEach(comment => { %>
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-author"><%= comment.user.username %></div>
+                                    <div class="comment-time"><%= new Date(comment.createdAt).toLocaleString() %></div>
+                                </div>
+                                <div class="comment-content">
+                                    <%= comment.text %>
+                                </div>
+                                <% if (comment.timestamp) { %>
+                                    <div class="comment-timestamp">
+                                        <button class="btn btn-secondary seek-to-time" data-time="<%= comment.timestamp %>">
+                                            Jump to <%= Math.floor(comment.timestamp / 60) %>:<%= (comment.timestamp % 60).toString().padStart(2, '0') %>
+                                        </button>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="comment-item">No comments yet</div>
+                    <% } %>
+                </div>
+                
+                <div class="comment-form">
+                    <h3>Add a Comment</h3>
+                    <form action="/projects/<%= version.project._id %>/versions/<%= version._id %>/comments" method="POST">
+                        <div class="form-group">
+                            <textarea name="text" placeholder="Add your comment..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="add-timestamp"> Add timestamp at current playback position
+                            </label>
+                            <input type="hidden" name="timestamp" id="timestamp-input">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audioPlayer = document.getElementById('audio-player');
+            const playButtons = document.querySelectorAll('.play-audio');
+            const seekButtons = document.querySelectorAll('.seek-to-time');
+            const addTimestampCheckbox = document.getElementById('add-timestamp');
+            const timestampInput = document.getElementById('timestamp-input');
+            
+            // Play audio file when button is clicked
+            playButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const audioUrl = this.dataset.url;
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.play();
+                });
+            });
+            
+            // Seek to timestamp when button is clicked
+            seekButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const timestamp = parseFloat(this.dataset.time);
+                    audioPlayer.currentTime = timestamp;
+                    audioPlayer.play();
+                });
+            });
+            
+            // Add timestamp to comment
+            if (addTimestampCheckbox && timestampInput) {
+                addTimestampCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        timestampInput.value = audioPlayer.currentTime || 0;
+                    } else {
+                        timestampInput.value = '';
+                    }
+                });
+                
+                audioPlayer.addEventListener('timeupdate', function() {
+                    if (addTimestampCheckbox.checked) {
+                        timestampInput.value = audioPlayer.currentTime;
+                    }
+                });
+            }
+            
+            // Connect to Socket.IO for real-time updates
+            const socket = io();
+            socket.emit('join-project', '<%= version.project._id %>');
+            
+            // Listen for new comments
+            socket.on('new-comment', function(data) {
+                const commentList = document.querySelector('.comment-list');
+                
+                // Remove "No comments yet" message if it exists
+                const noCommentsMsg = commentList.querySelector('.comment-item:only-child');
+                if (noCommentsMsg && noCommentsMsg.textContent.trim() === 'No comments yet') {
+                    commentList.removeChild(noCommentsMsg);
+                }
+                
+                // Create new comment element
+                const commentItem = document.createElement('div');
+                commentItem.className = 'comment-item';
+                
+                const commentHeader = document.createElement('div');
+                commentHeader.className = 'comment-header';
+                
+                const commentAuthor = document.createElement('div');
+                commentAuthor.className = 'comment-author';
+                commentAuthor.textContent = data.username;
+                
+                const commentTime = document.createElement('div');
+                commentTime.className = 'comment-time';
+                commentTime.textContent = new Date().toLocaleString();
+                
+                commentHeader.appendChild(commentAuthor);
+                commentHeader.appendChild(commentTime);
+                
+                const commentContent = document.createElement('div');
+                commentContent.className = 'comment-content';
+                commentContent.textContent = data.comment.text;
+                
+                commentItem.appendChild(commentHeader);
+                commentItem.appendChild(commentContent);
+                
+                if (data.comment.timestamp) {
+                    const commentTimestamp = document.createElement('div');
+                    commentTimestamp.className = 'comment-timestamp';
+                    
+                    const seekButton = document.createElement('button');
+                    seekButton.className = 'btn btn-secondary seek-to-time';
+                    seekButton.dataset.time = data.comment.timestamp;
+                    
+                    const minutes = Math.floor(data.comment.timestamp / 60);
+                    const seconds = (data.comment.timestamp % 60).toString().padStart(2, '0');
+                    seekButton.textContent = `Jump to ${minutes}:${seconds}`;
+                    
+                    seekButton.addEventListener('click', function() {
+                        audioPlayer.currentTime = parseFloat(this.dataset.time);
+                        audioPlayer.play();
+                    });
+                    
+                    commentTimestamp.appendChild(seekButton);
+                    commentItem.appendChild(commentTimestamp);
+                }
+                
+                commentList.appendChild(commentItem);
+            });
+        });
+    </script>
+</body>
+</html>

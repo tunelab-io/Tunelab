@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Rythmit</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .btn {
+            padding: 6px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #58a6ff;
+            border-color: #30363d;
+        }
+        
+        .btn-outline:hover {
+            border-color: #58a6ff;
+            color: #79b8ff;
+        }
+        
+        .btn-sm {
+            padding: 3px 12px;
+            font-size: 12px;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #8b949e;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .stat-text {
+            font-size: 18px;
+            color: #e6edf3;
+            margin: 0 0 12px 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #0d1117;
+            border-radius: 4px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #238636;
+            border-radius: 4px;
+        }
+        
+        .storage-limit {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 4px 0 0 0;
+        }
+        
+        .recent-projects h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 16px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 0;
+        }
+        
+        .empty-state img {
+            width: 120px;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            color: #e6edf3;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            color: #8b949e;
+            margin-bottom: 24px;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .project-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .project-card:hover {
+            border-color: #58a6ff;
+        }
+        
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .project-card-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .project-card-header h3 a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        
+        .project-card-header h3 a:hover {
+            text-decoration: underline;
+        }
+        
+        .project-visibility {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .project-visibility.public {
+            background-color: rgba(35, 134, 54, 0.15);
+            color: #3fb950;
+        }
+        
+        .project-visibility.private {
+            background-color: rgba(187, 128, 9, 0.15);
+            color: #e3b341;
+        }
+        
+        .project-description {
+            color: #8b949e;
+            font-size: 14px;
+            margin: 8px 0 16px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .project-role {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .project-role.owner {
+            background-color: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+        
+        .project-role.collaborator {
+            background-color: rgba(139, 148, 158, 0.15);
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Welcome, <%= user.username %></h1>
+                <a href="/projects/new" class="btn btn-primary">New Project</a>
+            </div>
+            
+            <section class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Projects</h3>
+                    <p class="stat-number"><%= projects.length %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Storage Used</h3>
+                    <p class="stat-number"><%= (user.storageUsed / (1024 * 1024 * 1024)).toFixed(2) %> GB</p>
+                    <div class="progress-bar">
+                        <% 
+                            let maxStorage = 1; // GB
+                            if (user.plan === 'pro') maxStorage = 50;
+                            if (user.plan === 'team') maxStorage = 500;
+                            const percentage = Math.min(100, (user.storageUsed / (maxStorage * 1024 * 1024 * 1024)) * 100);
+                        %>
+                        <div class="progress" style="width: <%= percentage %>%"></div>
+                    </div>
+                    <p class="storage-limit">of <%= maxStorage %> GB (<%= user.plan.charAt(0).toUpperCase() + user.plan.slice(1) %> plan)</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Account Type</h3>
+                    <p class="stat-text"><%= user.plan.charAt(0).toUpperCase() + user.plan.slice(1) %></p>
+                    <% if (user.plan === 'free') { %>
+                        <a href="/settings/upgrade" class="btn btn-sm btn-outline">Upgrade</a>
+                    <% } %>
+                </div>
+            </section>
+            
+            <section class="recent-projects">
+                <h2>Your Projects</h2>
+                <% if (projects.length === 0) { %>
+                    <div class="empty-state">
+                        <img src="/img/empty-projects.svg" alt="No projects yet">
+                        <h3>No projects yet</h3>
+                        <p>Create your first project to get started</p>
+                        <a href="/projects/new" class="btn btn-primary">Create Project</a>
+                    </div>
+                <% } else { %>
+                    <div class="projects-grid">
+                        <% projects.forEach(project => { %>
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                                    <span class="project-visibility <%= project.isPublic ? 'public' : 'private' %>">
+                                        <%= project.isPublic ? 'Public' : 'Private' %>
+                                    </span>
+                                </div>
+                                <p class="project-description"><%= project.description || 'No description' %></p>
+                                <div class="project-meta">
+                                    <span class="project-date">Updated <%= new Date(project.updatedAt).toLocaleDateString() %></span>
+                                    <% if (project.owner.toString() === user._id.toString()) { %>
+                                        <span class="project-role owner">Owner</span>
+                                    <% } else { %>
+                                        <span class="project-role collaborator">Collaborator</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </section>
+        </main>
+    </div>
+    <%- include('partials/footer') %>
+    <script src="/js/main.js"></script>
+</body>
+</html>

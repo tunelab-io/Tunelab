@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Rythmit</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0;
+        }
+        
+        .profile-section {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .profile-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e6edf3;
+            margin: 0 0 16px 0;
+        }
+        
+        .profile-info {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 12px;
+        }
+        
+        .profile-info dt {
+            color: #8b949e;
+            font-weight: 500;
+        }
+        
+        .profile-info dd {
+            margin: 0;
+        }
+        
+        .storage-bar {
+            height: 8px;
+            background-color: #30363d;
+            border-radius: 4px;
+            margin: 8px 0 16px 0;
+            overflow: hidden;
+        }
+        
+        .storage-used {
+            height: 100%;
+            background-color: #58a6ff;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+        
+        .btn-secondary {
+            background-color: #21262d;
+            color: #c9d1d9;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #30363d;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .projects-list {
+            margin-top: 16px;
+        }
+        
+        .project-item {
+            padding: 12px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            background-color: #0d1117;
+        }
+        
+        .project-item h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+        }
+        
+        .project-item p {
+            margin: 0;
+            color: #8b949e;
+            font-size: 14px;
+        }
+        
+        .readme-container {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        
+        .readme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .readme-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .readme-content {
+            padding: 16px;
+            min-height: 150px;
+        }
+        
+        .readme-content.empty {
+            color: #8b949e;
+            font-style: italic;
+        }
+        
+        .readme-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            resize: vertical;
+        }
+        
+        .markdown-toolbar {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+        }
+        
+        .markdown-toolbar button {
+            background: none;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .markdown-toolbar button:hover {
+            background-color: #30363d;
+            color: #c9d1d9;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 16px;
+            border: 3px solid #30363d;
+        }
+        
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .avatar-upload {
+            margin-top: 10px;
+        }
+        
+        .avatar-upload input[type="file"] {
+            display: none;
+        }
+        
+        .avatar-upload label {
+            cursor: pointer;
+            padding: 6px 12px;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .avatar-upload label:hover {
+            background-color: #30363d;
+        }
+        
+        /* Contribution graph styles */
+        .contribution-graph {
+            margin-top: 20px;
+        }
+        
+        .contribution-graph-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e6edf3;
+        }
+        
+        .contribution-months {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .contribution-grid {
+            display: grid;
+            grid-template-columns: repeat(52, 1fr);
+            grid-template-rows: repeat(7, 1fr);
+            gap: 3px;
+        }
+        
+        .contribution-cell {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background-color: #0e4429;
+            transition: transform 0.1s ease;
+        }
+        
+        .contribution-cell:hover {
+            transform: scale(1.2);
+        }
+        
+        .contribution-level-0 {
+            background-color: #161b22;
+        }
+        
+        .contribution-level-1 {
+            background-color: #0e4429;
+        }
+        
+        .contribution-level-2 {
+            background-color: #006d32;
+        }
+        
+        .contribution-level-3 {
+            background-color: #26a641;
+        }
+        
+        .contribution-level-4 {
+            background-color: #39d353;
+        }
+        
+        .contribution-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .contribution-legend-item {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+        
+        .contribution-legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            margin-right: 4px;
+        }
+        
+        .contribution-tooltip {
+            position: absolute;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            color: #c9d1d9;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body class="app-layout">
+    <%- include('partials/header') %>
+    <div class="container">
+        <div class="sidebar">
+            <%- include('partials/sidebar') %>
+        </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1>My Profile</h1>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Account Information</h2>
+                <div class="avatar-container">
+                    <img src="<%= user.profilePicture || '/img/default-avatar.png' %>" alt="Profile Picture" class="profile-avatar">
+                    <div class="avatar-upload">
+                        <input type="file" id="avatar-input" accept="image/*">
+                        <label for="avatar-input">Change Profile Picture</label>
+                    </div>
+                </div>
+                <dl class="profile-info">
+                    <dt>Username</dt>
+                    <dd><%= user.username %></dd>
+                    
+                    <dt>Email</dt>
+                    <dd><%= user.email %></dd>
+                    
+                    <dt>Member since</dt>
+                    <dd><%= new Date(user.createdAt).toLocaleDateString() %></dd>
+                    
+                    <dt>Plan</dt>
+                    <dd><%= user.plan.charAt(0).toUpperCase() + user.plan.slice(1) %></dd>
+                    
+                    <% if (user.location) { %>
+                    <dt>Location</dt>
+                    <dd><%= user.location %></dd>
+                    <% } %>
+                    
+                    <% if (user.website) { %>
+                    <dt>Website</dt>
+                    <dd><a href="<%= user.website %>" target="_blank"><%= user.website %></a></dd>
+                    <% } %>
+                </dl>
+                
+                <div class="form-actions">
+                    <a href="/settings" class="btn btn-secondary">Edit Profile</a>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>README.md</h2>
+                <div class="readme-container">
+                    <div class="readme-header">
+                        <div class="readme-title">
+                            <i class="fas fa-book"></i> README.md
+                        </div>
+                        <button onclick="toggleReadmeEdit()" id="edit-readme-btn" class="btn btn-secondary">Edit</button>
+                    </div>
+                    <div id="readme-display" class="readme-content <%= !user.readmeHtml ? 'empty' : '' %>">
+                        <% if (user.readmeHtml) { %>
+                            <%- user.readmeHtml %>
+                        <% } else { %>
+                            Add a README to your profile to tell other musicians about yourself.
+                        <% } %>
+                    </div>
+                    <div id="readme-edit-form" style="display: none;">
+                        <div class="markdown-toolbar">
+                            <button type="button" data-markdown="**bold**"><i class="fas fa-bold"></i></button>
+                            <button type="button" data-markdown="*italic*"><i class="fas fa-italic"></i></button>
+                            <button type="button" data-markdown="# heading"><i class="fas fa-heading"></i></button>
+                            <button type="button" data-markdown="[link](url)"><i class="fas fa-link"></i></button>
+                            <button type="button" data-markdown="![image](url)"><i class="fas fa-image"></i></button>
+                            <button type="button" data-markdown="- list item"><i class="fas fa-list-ul"></i></button>
+                            <button type="button" data-markdown="1. numbered item"><i class="fas fa-list-ol"></i></button>
+                            <button type="button" data-markdown="`code`"><i class="fas fa-code"></i></button>
+                        </div>
+                        <textarea id="readme-editor" class="readme-editor" placeholder="Tell others about yourself, your musical interests, or projects you're working on..."><%= user.readme || '' %></textarea>
+                        <div class="form-actions">
+                            <button onclick="toggleReadmeEdit()" id="cancel-readme-btn" class="btn btn-secondary">Cancel</button>
+                            <button onclick="saveReadme()" id="save-readme-btn" class="btn btn-primary">Save README</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            function toggleReadmeEdit() {
+                const displayDiv = document.getElementById('readme-display');
+                const editForm = document.getElementById('readme-edit-form');
+                const editBtn = document.getElementById('edit-readme-btn');
+                
+                if (editForm.style.display === 'none') {
+                    displayDiv.style.display = 'none';
+                    editForm.style.display = 'block';
+                    editBtn.style.display = 'none';
+                } else {
+                    displayDiv.style.display = 'block';
+                    editForm.style.display = 'none';
+                    editBtn.style.display = 'block';
+                }
+            }
+
+            async function saveReadme() {
+                const content = document.getElementById('readme-editor').value;
+                try {
+                    const response = await fetch('/profile/readme', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ readme: content })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('readme-display').innerHTML = data.html;
+                        toggleReadmeEdit();
+                    } else {
+                        alert('Failed to save README: ' + data.message);
+                    }
+                } catch (err) {
+                    console.error('Error saving README:', err);
+                    alert('An error occurred while saving the README');
+                }
+            }
+            </script>
+            <div class="profile-section">
+                <h2>Contribution Activity</h2>
+                <div class="contribution-graph">
+                    <div class="contribution-graph-title">
+                        <%= user.username %>'s contributions in the last year
+                    </div>
+                    <div class="contribution-months">
+                        <span>Jan</span>
+                        <span>Feb</span>
+                        <span>Mar</span>
+                        <span>Apr</span>
+                        <span>May</span>
+                        <span>Jun</span>
+                        <span>Jul</span>
+                        <span>Aug</span>
+                        <span>Sep</span>
+                        <span>Oct</span>
+                        <span>Nov</span>
+                        <span>Dec</span>
+                    </div>
+                    <div class="contribution-grid" id="contribution-grid"></div>
+                    <div class="contribution-legend">
+                        <span>Less</span>
+                        <div class="contribution-legend-item">
+                            <div class="contribution-legend-color contribution-level-0"></div>
+                        </div>
+                        <div class="contribution-legend-item">
+                            <div class="contribution-legend-color contribution-level-1"></div>
+                        </div>
+                        <div class="contribution-legend-item">
+                            <div class="contribution-legend-color contribution-level-2"></div>
+                        </div>
+                        <div class="contribution-legend-item">
+                            <div class="contribution-legend-color contribution-level-3"></div>
+                        </div>
+                        <div class="contribution-legend-item">
+                            <div class="contribution-legend-color contribution-level-4"></div>
+                        </div>
+                        <span>More</span>
+                    </div>
+                </div>
+                <div id="contribution-tooltip" class="contribution-tooltip"></div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Storage Usage</h2>
+                <% 
+                let storageLimit;
+                switch(user.plan) {
+                    case 'free':
+                        storageLimit = 1 * 1024 * 1024 * 1024; // 1GB
+                        break;
+                    case 'pro':
+                        storageLimit = 50 * 1024 * 1024 * 1024; // 50GB
+                        break;
+                    case 'team':
+                        storageLimit = 500 * 1024 * 1024 * 1024; // 500GB
+                        break;
+                    default:
+                        storageLimit = 1 * 1024 * 1024 * 1024; // 1GB default
+                }
+                
+                const percentUsed = (user.storageUsed / storageLimit) * 100;
+                const usedGB = (user.storageUsed / (1024 * 1024 * 1024)).toFixed(2);
+                const totalGB = (storageLimit / (1024 * 1024 * 1024)).toFixed(2);
+                %>
+                
+                <div class="storage-bar">
+                    <div class="storage-used" style="width: <%= percentUsed %>%;"></div>
+                </div>
+                
+                <p><%= usedGB %> GB used of <%= totalGB %> GB (<%= percentUsed.toFixed(1) %>%)</p>
+                
+                <% if (user.plan === 'free') { %>
+                    <a href="/settings" class="btn btn-primary">Upgrade to Pro</a>
+                <% } %>
+            </div>
+            
+            <div class="profile-section">
+                <h2>My Projects</h2>
+                <% if (projects && projects.length > 0) { %>
+                    <div class="projects-list">
+                        <% projects.forEach(project => { %>
+                            <div class="project-item">
+                                <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                                <p><%= project.description || 'No description' %></p>
+                                <p>Last updated: <%= new Date(project.updatedAt).toLocaleDateString() %></p>
+                            </div>
+                        <% }); %>
+                    </div>
+                    <div class="form-actions">
+                        <a href="/projects" class="btn btn-secondary">View All Projects</a>
+                    </div>
+                <% } else { %>
+                    <p>You don't have any projects yet.</p>
+                    <a href="/projects/new" class="btn btn-primary">Create New Project</a>
+                <% } %>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Collaborations</h2>
+                <% if (collaborations && collaborations.length > 0) { %>
+                    <div class="projects-list">
+                        <% collaborations.forEach(project => { %>
+                            <div class="project-item">
+                                <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                                <p><%= project.description || 'No description' %></p>
+                                <p>Last updated: <%= new Date(project.updatedAt).toLocaleDateString() %></p>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p>You're not collaborating on any projects yet.</p>
+                <% } %>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Update Password</h2>
+                <form action="/settings/update" method="POST">
+                    <div class="form-group">
+                        <label for="current-password">Current password</label>
+                        <input type="password" id="current-password" name="currentPassword" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-password">New password</label>
+                        <input type="password" id="new-password" name="newPassword" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm new password</label>
+                        <input type="password" id="confirm-password" name="confirmPassword" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Update password</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const editBtn = document.getElementById('edit-readme-btn');
+            const cancelBtn = document.getElementById('cancel-readme-btn');
+            const saveBtn = document.getElementById('save-readme-btn');
+            const readmeDisplay = document.getElementById('readme-display');
+            const readmeEditForm = document.getElementById('readme-edit-form');
+            const readmeEditor = document.getElementById('readme-editor');
+            
+            // Toggle edit mode
+            editBtn.addEventListener('click', function() {
+                readmeDisplay.style.display = 'none';
+                readmeEditForm.style.display = 'block';
+            });
+            
+            // Cancel editing
+            cancelBtn.addEventListener('click', function() {
+                readmeDisplay.style.display = 'block';
+                readmeEditForm.style.display = 'none';
+            });
+            
+            // Save README
+            saveBtn.addEventListener('click', function() {
+                const content = readmeEditor.value;
+                
+                fetch('/api/profile/readme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    },
+                    body: JSON.stringify({ readme: content }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        readmeDisplay.innerHTML = marked.parse(content); // Use marked to parse markdown
+                        readmeDisplay.classList.remove('empty');
+                        readmeDisplay.style.display = 'block';
+                        readmeEditForm.style.display = 'none';
+                    } else {
+                        alert('Failed to save README: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while saving your README.');
+                });
+            });
+            
+            // Markdown toolbar buttons
+            document.querySelectorAll('.markdown-toolbar button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const markdown = this.getAttribute('data-markdown');
+                    const textarea = readmeEditor;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selectedText = textarea.value.substring(start, end);
+                    
+                    let replacement;
+                    if (selectedText) {
+                        // If text is selected, wrap it with markdown
+                        if (markdown.includes('url')) {
+                            // For links and images, replace url with a placeholder
+                            replacement = markdown.replace('url', 'https://');
+                        } else {
+                            // For other formatting, wrap the selected text
+                            replacement = markdown.replace(/\*\*|_|\*|`|#/, '') + selectedText;
+                        }
+                    } else {
+                        // If no text is selected, just insert the markdown
+                        replacement = markdown;
+                    }
+                    
+                    // Insert the replacement
+                    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+                    
+                    // Set the cursor position
+                    textarea.focus();
+                    textarea.selectionStart = start + replacement.length;
+                    textarea.selectionEnd = start + replacement.length;
+                });
+            });
+            
+            // Profile picture upload
+            const avatarInput = document.getElementById('avatar-input');
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const formData = new FormData();
+                        formData.append('avatar', this.files[0]);
+                        
+                        fetch('/api/profile/avatar', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Refresh the profile picture
+                                document.querySelector('.profile-avatar').src = data.profilePicture + '?t=' + new Date().getTime();
+                            } else {
+                                alert('Failed to upload profile picture: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while uploading your profile picture.');
+                        });
+                    }
+                });
+            }
+            
+            // Generate contribution graph
+            function generateContributionGraph() {
+                const grid = document.getElementById('contribution-grid');
+                const tooltip = document.getElementById('contribution-tooltip');
+                
+                // Fetch contribution data from server
+                fetch('/api/profile/contributions')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            renderContributionGraph(data.contributions, grid, tooltip);
+                        } else {
+                            console.error('Failed to load contribution data:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading contribution data:', error);
+                    });
+            }
+            
+            function renderContributionGraph(contributions, grid, tooltip) {
+                // Clear existing cells
+                grid.innerHTML = '';
+                
+                // Create cells for each day
+                contributions.forEach((day, index) => {
+                    const cell = document.createElement('div');
+                    cell.className = `contribution-cell contribution-level-${day.level}`;
+                    cell.dataset.date = day.date;
+                    cell.dataset.count = day.count;
+                    
+                    // Add tooltip functionality
+                    cell.addEventListener('mouseover', function(e) {
+                        const date = new Date(this.dataset.date);
+                        const formattedDate = date.toLocaleDateString(undefined, { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                        
+                        tooltip.innerHTML = `
+                            <strong>${formattedDate}</strong><br>
+                            ${this.dataset.count} contribution${this.dataset.count !== '1' ? 's' : ''}
+                        `;
+                        
+                        tooltip.style.opacity = '1';
+                        tooltip.style.left = (e.pageX + 10) + 'px';
+                        tooltip.style.top = (e.pageY + 10) + 'px';
+                    });
+                    
+                    cell.addEventListener('mouseout', function() {
+                        tooltip.style.opacity = '0';
+                    });
+                    
+                    grid.appendChild(cell);
+                });
+            }
+ </script>
+ </html>
